@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paso 4: Señor de Todo - Ríos de Agua Viva</title>
+    <style>
+        :root {
+            --primary: #0077b6; /* Azul fuerte */
+            --secondary: #00b4d8; /* Azul claro */
+            --accent: #ff9f1c; /* Naranja para resaltar */
+            --bg-light: #f0f8ff; /* Fondo muy claro */
+            --text-dark: #333;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--primary);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        /* Estilo para el número de pregunta */
+        .q-number {
+            background-color: var(--accent);
+            color: white;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+            flex-shrink: 0; /* Evita que el círculo se aplaste */
+        }
+
+        .question {
+            font-weight: bold;
+            color: var(--text-dark);
+            margin-top: 25px;
+            display: flex;
+            align-items: baseline;
+        }
+
+        .answer {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            margin-left: 40px; /* Indentación para alinear con el texto de la pregunta */
+            color: #0d47a1;
+            font-weight: 500;
+        }
+
+        .verse-box {
+            background-color: #fff3cd;
+            border-left: 5px solid var(--accent);
+            padding: 20px;
+            margin: 20px 0;
+            font-style: italic;
+            border-radius: 5px;
+        }
+
+        .true-false {
+            list-style: none;
+            padding: 0;
+        }
+
+        .true-false li {
+            background: #fff;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge-false {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .sub-list li {
+            margin-bottom: 8px;
+        }
+
+        /* Estilos para la Misión Semanal */
+        .mission-card {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-left: none;
+        }
+        
+        .mission-card h2 {
+            color: white;
+            border-bottom-color: rgba(255,255,255,0.3);
+        }
+
+        .mission-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .check-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .icon-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Responsivo */
+        @media (max-width: 600px) {
+            .question {
+                flex-direction: column;
+            }
+            .answer {
+                margin-left: 0;
+            }
+            .q-number {
+                margin-bottom: 10px;
+            }
+        }
+		/* --- NUEVOS ESTILOS PARA EL BOTÓN DE REGRESAR --- */
+
+		/* Aseguramos que el header pueda contener el botón posicionado */
+		header {
+			position: relative; 
+		}
+
+		/* Estilo del botón superior izquierdo */
+		.btn-back-top {
+			position: absolute;
+			top: 20px;
+			left: 20px;
+			background: rgba(255, 255, 255, 0.2);
+			color: var(--white);
+			text-decoration: none;
+			padding: 8px 15px;
+			border-radius: 20px;
+			font-weight: bold;
+			font-size: 0.9rem;
+			display: flex;
+			align-items: center;
+			gap: 5px;
+			transition: all 0.3s ease;
+			border: 1px solid rgba(255,255,255,0.3);
+		}
+
+		.btn-back-top:hover {
+			background: var(--white);
+			color: var(--primary);
+			transform: translateX(-3px);
+		}
+
+		/* Estilo del botón grande al final de la página */
+		.btn-finish-lesson {
+			display: block;
+			background-color: var(--white);
+			color: var(--primary);
+			text-align: center;
+			text-decoration: none;
+			padding: 15px;
+			border-radius: 12px;
+			font-weight: bold;
+			font-size: 1.1rem;
+			border: 2px solid var(--primary);
+			margin-top: 30px;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+		}
+
+		.btn-finish-lesson:hover {
+			background-color: var(--primary);
+			color: var(--white);
+			transform: translateY(-3px);
+			box-shadow: 0 8px 15px rgba(0,119,182,0.2);
+		}
+
+		@media (max-width: 600px) {
+			/* En móviles, el botón de arriba se ve mejor un poco más pequeño */
+			.btn-back-top {
+				top: 15px;
+				left: 15px;
+				padding: 5px 10px;
+				font-size: 0.8rem;
+			}
+		}
+    </style>
+</head>
+<body>
+
+    <header>
+		<a href="index.html" class="btn-back-top">
+			← Inicio
+		</a>
+		<span class="icon-title">👑</span>
+		<h1>Paso 4: Señor de Todo</h1>
+		<p>Discipulado "Nueva Vida en Cristo" | Iglesia Ríos de Agua Viva</p>
+	</header>
+
+    <div class="container">
+
+        <!-- Sección Intro: Verdadero o Falso -->
+        <div class="card">
+            <h2>🤔 ¿Verdadero o Falso?</h2>
+            <p>Muchas veces tenemos ideas equivocadas sobre Dios. Marca lo que crees (¡Mira las respuestas!):</p>
+            <ul class="true-false">
+                <li>
+                    Tengo el derecho de controlar mi propia vida.
+                    <span class="badge-false">FALSO</span>
+                </li>
+                <li>
+                    Si le doy el control a Cristo, Él me quitará toda la diversión.
+                    <span class="badge-false">FALSO</span>
+                </li>
+                <li>
+                    Yo sé manejar mi vida mejor que nadie.
+                    <span class="badge-false">FALSO</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Sección 1: Quién es mi dueño -->
+        <div class="card">
+            <h2>☝️ ¿Quién es mi Dueño?</h2>
+            <p>La palabra "Señor" significa "Dueño" o "Jefe".</p>
+            
+            <div class="question">
+                <span class="q-number">1</span>
+                ¿Qué significado tiene la expresión: Jesucristo es el Señor de mi vida?
+            </div>
+            <div class="answer">Significa que Él manda. Yo ya no soy el jefe de mi vida, ahora le obedezco a Él porque Él tiene la autoridad.</div>
+
+            <div class="question">
+                <span class="q-number">2</span>
+                ¿Cuál es el derecho que tiene Cristo sobre mi vida?
+            </div>
+            <div class="answer">
+                <ul>
+                    <li><strong>Por Creación (Colosenses 1:16):</strong> Él nos hizo, así que somos suyos.</li>
+                    <li><strong>Por Redención (2 Corintios 5:15):</strong> Él murió por nosotros y nos compró con su vida.</li>
+                </ul>
+                <br><strong>Conclusión:</strong> Mi vida pertenece a Cristo.
+            </div>
+        </div>
+
+        <!-- Sección 2: Mi Respuesta -->
+        <div class="card">
+            <h2>🙋 Mi Respuesta</h2>
+            
+            <div class="question">
+                <span class="q-number">3</span>
+                Si Cristo es mi dueño, ¿cómo debo corresponderle según 2 Corintios 5:15?
+            </div>
+            <div class="answer">Ya no debo vivir para mí mismo (mis propios deseos), sino vivir para aquel que murió y resucitó por mí (Jesús).</div>
+
+            <div class="verse-box">
+                "Con Cristo estoy juntamente crucificado, y ya no vivo yo, mas vive Cristo en mí..." <br><strong>- Gálatas 2:20</strong>
+            </div>
+
+            <div class="question">
+                <span class="q-number">4</span>
+                Explique la siguiente frase: "ya no vivo yo... vive Cristo en mí" (Gálatas 2:20)
+            </div>
+            <div class="answer">Significa que mi "vida vieja" y egoísta quedó atrás (crucificada). Ahora Jesús vive Su vida a través de mí.</div>
+
+            <div class="question">
+                <span class="q-number">5</span>
+                ¿Cómo debo vivir esta nueva vida en Cristo? (Según la segunda parte de Gálatas 2:20)
+            </div>
+            <div class="answer">Debo vivirla "en la fe del Hijo de Dios". Es decir, confiando totalmente en Él cada día.</div>
+        </div>
+
+        <!-- Sección 3: Venciendo el Temor -->
+        <div class="card">
+            <h2>🛡️ Venciendo el Temor</h2>
+            <p>A veces nos da miedo entregar el control. Pensamos: <em>"¿Me quitará mis amigos?"</em> o <em>"¿Me pedirá algo imposible?"</em>.</p>
+            <div class="verse-box">
+                "...echando toda vuestra ansiedad sobre él, porque él tiene cuidado de vosotros." <br><strong>- 1 Pedro 5:7</strong>
+            </div>
+            <div class="answer">
+                <strong>¿Hay base para tus temores? ¡NO!</strong> <br>Dios te ama y quiere lo mejor para ti. Él cuidará de tu futuro mejor que tú mismo.
+            </div>
+        </div>
+
+        <!-- Sección 4: Cómo sé si Él es mi Señor -->
+        <div class="card">
+            <h2>🔍 ¿Cómo sé si Él es mi Señor?</h2>
+            
+            <div class="question">
+                <span class="q-number">6</span>
+                ¿Cuál es una buena manera para saber si Cristo es el Señor de mi vida? (Lucas 6:46)
+            </div>
+            <div class="answer">Haciendo lo que Él dice. No basta con decirle "Señor, Señor" de labios; la prueba real es la obediencia.</div>
+
+            <div class="question">
+                <span class="q-number">7</span>
+                ¿Por qué es tan necesario que rinda mi vida al control de Cristo?
+            </div>
+            <div class="answer">
+                <ul class="sub-list">
+                    <li>Porque no puedo servir a dos señores (Dios y el mundo) (Lucas 16:13).</li>
+                    <li>Porque sin Cristo al mando, soy esclavo del pecado (Romanos 6:16).</li>
+                    <li>Porque tendré que rendirle cuentas un día (2 Corintios 5:10).</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Sección 5: Qué debo entregar (Pregunta 8) -->
+        <div class="card">
+            <h2>🤲 ¿Qué debo entregar a Cristo?</h2>
+            <div class="question">
+                <span class="q-number">8</span>
+                Algunas áreas de mi vida que debo entregarle son:
+            </div>
+            
+            <div class="answer">
+                <ul class="sub-list">
+                    <li>🧠 <strong>Romanos 12:1:</strong> Mi cuerpo (presentarlo como sacrificio vivo y santo).</li>
+                    <li>🌍 <strong>Romanos 12:2:</strong> Mi mente (no conformarme a este mundo, sino renovar mi entendimiento).</li>
+                    <li>⏰ <strong>Efesios 5:15-16:</strong> Mi tiempo (aprovechándolo bien porque los días son malos).</li>
+                    <li>💰 <strong>2 Corintios 9:6-7:</strong> Mis bienes/dinero (dando con alegría y generosidad).</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Sección Misión Semanal (Reincorporada) -->
+        <div class="card mission-card">
+            <h2>📅 Tu Misión Semanal</h2>
+            <p>Para fortalecer tu vida espiritual esta semana, te invitamos a completar estas tareas:</p>
+            
+            <div class="mission-item">
+                <span class="check-icon">📖</span>
+                <div>
+                    <strong>LECTURA BÍBLICA:</strong><br>
+                    Lee <strong>Hechos capítulos 1 al 7</strong> (un capítulo por día).
+                </div>
+            </div>
+
+            <div class="mission-item">
+                <span class="check-icon">🧠</span>
+                <div>
+                    <strong>MEMORIZAR:</strong><br>
+                    <strong>Gálatas 2:20</strong> <em>"Con Cristo estoy juntamente crucificado..."</em>
+                </div>
+            </div>
+
+            <div class="mission-item">
+                <span class="check-icon">🙏</span>
+                <div>
+                    <strong>UNA ENTREGA DIARIA:</strong><br>
+                    Haz esta oración cada mañana:<br>
+                    <em>"Señor me entrego a ti. Toma mi mente, mis ojos, mis oídos, mis labios, mis manos y mis pies. Toma mi cuerpo, es tu templo. Quiero obedecerte. Amén."</em>
+                </div>
+            </div>
+        </div>
+
+        <a href="index.html" class="btn-finish-lesson">
+			✅ Terminar Lección y Volver al Menú
+		</a>
+
+		<footer>
+			<p>© 2025 Iglesia Ríos de Agua Viva | Material de Discipulado</p>
+		</footer>
+
+    </div>
+
+</body>
+</html>

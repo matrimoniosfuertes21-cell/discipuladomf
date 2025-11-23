@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - Ríos de Agua Viva</title>
+    <style>
+        :root {
+            --primary: #0077b6; /* Azul fuerte */
+            --secondary: #00b4d8; /* Azul claro */
+            --accent: #ff9f1c; /* Naranja para resaltar */
+            --bg-light: #f0f8ff; /* Fondo muy claro */
+            --text-dark: #333;
+            --white: #ffffff;
+            --gray: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* Header con imagen de fondo sutil o degradado */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            padding: 60px 20px;
+            text-align: center;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 3rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.3rem;
+            margin-top: 15px;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Sección de Categoría Principal */
+        .category-section {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            border-top: 8px solid var(--accent);
+        }
+
+        .category-title {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        .category-icon {
+            background: var(--secondary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+
+        /* Grid de Pasos */
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        /* Tarjetas de los pasos */
+        .step-card {
+            background: var(--white);
+            border: 1px solid var(--gray);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Estado: Disponible (como el Paso 4) */
+        .step-card.active {
+            border-color: var(--secondary);
+            background: linear-gradient(to bottom right, #fff, #f0faff);
+        }
+
+        .step-card.active:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,180,216,0.2);
+            border-color: var(--primary);
+        }
+
+        .step-card.active::after {
+            content: 'Disponible';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        /* Estado: Bloqueado/Próximamente */
+        .step-card.locked {
+            opacity: 0.6;
+            cursor: default;
+            background: #f9f9f9;
+        }
+
+        .step-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .step-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .step-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: rgba(0,0,0,0.05);
+            position: absolute;
+            bottom: -10px;
+            right: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        /* Botón de acción en tarjetas activas */
+        .btn-go {
+            margin-top: 15px;
+            display: inline-block;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .step-card.active:hover .btn-go {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Ríos de Agua Viva</h1>
+        <p>Centro de Recursos y Discipulado</p>
+    </header>
+
+    <div class="container">
+
+        <!-- Categoría: Matrimonios Fuertes -->
+        <section class="category-section">
+            <h2 class="category-title">
+                <span class="category-icon">❤️</span>
+                Matrimonios Fuertes: Discipulados
+            </h2>
+            
+            <p style="margin-bottom: 30px;">
+                Bienvenido al curso "Nueva Vida en Cristo". Aquí encontrarás las lecciones paso a paso para fortalecer tu vida espiritual y tu matrimonio.
+            </p>
+
+            <div class="steps-grid">
+                
+                <!-- Paso 1 (Bloqueado por ahora) -->
+                <div class="step-card locked">
+                    <span class="step-number">01</span>
+                    <div class="step-title">Paso 1: ¡Salvo!</div>
+                    <div class="step-desc">Entendiendo la salvación y la gracia de Dios.</div>
+                    <small style="margin-top:10px; display:block;">🔒 Próximamente</small>
+                </div>
+
+                <!-- Paso 2 (Bloqueado) -->
+                <div class="step-card locked">
+                    <span class="step-number">02</span>
+                    <div class="step-title">Paso 2: ¡Seguro!</div>
+                    <div class="step-desc">La seguridad de tu nueva vida en Cristo.</div>
+                    <small style="margin-top:10px; display:block;">🔒 Próximamente</small>
+                </div>
+
+                <!-- Paso 3 (Bloqueado) -->
+                <div class="step-card locked">
+                    <span class="step-number">03</span>
+                    <div class="step-title">Paso 3: ¡Victorioso!</div>
+                    <div class="step-desc">Venciendo las tentaciones y obstáculos.</div>
+                    <small style="margin-top:10px; display:block;">🔒 Próximamente</small>
+                </div>
+
+                <!-- Paso 4 (ACTIVO - Enlace a tu archivo) -->
+                <a href="paso4.html" class="step-card active">
+                    <span class="step-number">04</span>
+                    <div class="step-title">Paso 4: Señor de Todo</div>
+                    <div class="step-desc">¿Quién manda en mi vida? Entregando el control a Cristo.</div>
+                    <span class="btn-go">Ver lección →</span>
+                </a>
+
+                <!-- Paso 5 (Bloqueado) -->
+                <div class="step-card locked">
+                    <span class="step-number">05</span>
+                    <div class="step-title">Paso 5: Viviendo en el Espíritu</div>
+                    <div class="step-desc">El poder del Espíritu Santo en nosotros.</div>
+                    <small style="margin-top:10px; display:block;">🔒 Próximamente</small>
+                </div>
+
+                 <!-- Más pasos se pueden añadir aquí -->
+                 <div class="step-card locked">
+                    <span class="step-number">...</span>
+                    <div class="step-title">Más lecciones</div>
+                    <div class="step-desc">Pronto estarán disponibles los siguientes pasos.</div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Puedes agregar más categorías aquí abajo en el futuro (ej. Jóvenes, Niños, etc.) -->
+
+    </div>
+
+    <footer>
+        <p>© 2024 Iglesia Cristiana Ríos de Agua Viva<br>Material educativo para uso interno.</p>
+    </footer>
+
+</body>
+</html>
