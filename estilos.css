@@ -1,0 +1,256 @@
+:root {
+    --primary: #0077b6; /* Azul fuerte */
+    --secondary: #00b4d8; /* Azul claro */
+    --accent: #ff9f1c; /* Naranja para resaltar */
+    --bg-light: #f0f8ff; /* Fondo muy claro */
+    --text-dark: #333;
+    --white: #ffffff;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+header {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: var(--white);
+    padding: 40px 20px;
+    text-align: center;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+header p {
+    font-size: 1.2rem;
+    margin-top: 10px;
+    opacity: 0.9;
+}
+
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.card {
+    background: var(--white);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    border-left: 5px solid var(--primary);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+h2 {
+    color: var(--primary);
+    border-bottom: 2px solid var(--secondary);
+    padding-bottom: 10px;
+    margin-top: 0;
+}
+
+/* Estilo para el número de pregunta */
+.q-number {
+    background-color: var(--accent);
+    color: white;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-right: 10px;
+    font-weight: bold;
+    font-size: 1rem;
+    flex-shrink: 0; /* Evita que el círculo se aplaste */
+}
+
+.question {
+    font-weight: bold;
+    color: var(--text-dark);
+    margin-top: 25px;
+    display: flex;
+    align-items: baseline;
+}
+
+.answer {
+    background-color: #e3f2fd;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+    margin-left: 40px; /* Indentación para alinear con el texto de la pregunta */
+    color: #0d47a1;
+    font-weight: 500;
+}
+
+.verse-box {
+    background-color: #fff3cd;
+    border-left: 5px solid var(--accent);
+    padding: 20px;
+    margin: 20px 0;
+    font-style: italic;
+    border-radius: 5px;
+}
+
+.true-false {
+    list-style: none;
+    padding: 0;
+}
+
+.true-false li {
+    background: #fff;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.badge-false {
+    background-color: #ff6b6b;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.sub-list li {
+    margin-bottom: 8px;
+}
+
+/* Estilos para la Misión Semanal */
+.mission-card {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border-left: none;
+}
+
+.mission-card h2 {
+    color: white;
+    border-bottom-color: rgba(255,255,255,0.3);
+}
+
+.mission-item {
+    background: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.check-icon {
+    font-size: 1.5rem;
+    margin-right: 15px;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.icon-title {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+    .question {
+        flex-direction: column;
+    }
+    .answer {
+        margin-left: 0;
+    }
+    .q-number {
+        margin-bottom: 10px;
+    }
+}
+/* --- NUEVOS ESTILOS PARA EL BOTÓN DE REGRESAR --- */
+
+/* Aseguramos que el header pueda contener el botón posicionado */
+header {
+    position: relative; 
+}
+
+/* Estilo del botón superior izquierdo */
+.btn-back-top {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--white);
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.btn-back-top:hover {
+    background: var(--white);
+    color: var(--primary);
+    transform: translateX(-3px);
+}
+
+/* Estilo del botón grande al final de la página */
+.btn-finish-lesson {
+    display: block;
+    background-color: var(--white);
+    color: var(--primary);
+    text-align: center;
+    text-decoration: none;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    border: 2px solid var(--primary);
+    margin-top: 30px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.btn-finish-lesson:hover {
+    background-color: var(--primary);
+    color: var(--white);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0,119,182,0.2);
+}
+
+@media (max-width: 600px) {
+    /* En móviles, el botón de arriba se ve mejor un poco más pequeño */
+    .btn-back-top {
+        top: 15px;
+        left: 15px;
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+}
