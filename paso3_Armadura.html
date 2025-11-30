@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guerra Espiritual: Enemigos y Armadura</title>
+    
+    <!-- 1. Importar Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Importar React y ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- 3. Importar Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Fuentes e Iconos -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Animación para la mancha */
+        .stain { transition: all 1s ease-in-out; }
+        .cleaned { opacity: 0; transform: scale(1.5); filter: blur(10px); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- ICONOS SVG (Lucide style) ---
+        const Shield = ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
+        const Sword = ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="m13 19 6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg>;
+        const HardHat = ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z"/><path d="M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5"/><path d="M4 15v-3a6 6 0 0 1 6-6h0"/><path d="M14 6h0a6 6 0 0 1 6 6v3"/></svg>;
+        const Footprints = ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 11 3.8 11 8c0 2.85-1.67 5.14-2.5 7.5-.83 2.36.5 4.5.5 4.5z"/><path d="M20 20v2.38C20 24.5 21.03 23.5 21 21c-.03-2.72-1.49-6-4.5-6C14.63 15 13 16.8 13 21c0 2.85 1.67 5.14 2.5 7.5.83 2.36-.5 4.5-.5 4.5z" transform="translate(0 -6)"/></svg>;
+        const Heart = ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>;
+        const CheckCircle2 = ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>;
+        const RotateCcw = ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>;
+        const Home = ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+        const Skull = ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="M12.5 17l-.5-4"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></svg>;
+        const Globe = ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
+        const UserX = ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="13"/><line x1="22" x2="17" y1="8" y2="13"/></svg>;
+        const Flame = ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.1.2-2.1.5-3z"/></svg>;
+        const Droplets = ({ size = 24, className = "" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>;
+
+        // --- COMPONENTE 1: LOS 3 ENEMIGOS ---
+        const EnemiesSection = () => {
+            const [activeEnemy, setActiveEnemy] = useState(null);
+
+            const enemies = [
+                {
+                    id: 1,
+                    title: "El Mundo",
+                    verseRef: "Santiago 4:4",
+                    verseText: "¡Oh almas adúlteras! ¿No sabéis que la amistad del mundo es enemistad contra Dios?",
+                    icon: <Globe size={40} />,
+                    color: "bg-blue-100 text-blue-800",
+                    borderColor: "border-blue-300"
+                },
+                {
+                    id: 2,
+                    title: "La Carne",
+                    verseRef: "Gálatas 5:17",
+                    verseText: "Porque el deseo de la carne es contra el Espíritu, y el del Espíritu es contra la carne...",
+                    icon: <UserX size={40} />,
+                    color: "bg-red-100 text-red-800",
+                    borderColor: "border-red-300"
+                },
+                {
+                    id: 3,
+                    title: "El Diablo",
+                    verseRef: "1 Pedro 5:8",
+                    verseText: "Sed sobrios, y velad; porque vuestro adversario el diablo, como león rugiente, anda alrededor buscando a quien devorar.",
+                    icon: <Skull size={40} />,
+                    color: "bg-slate-800 text-slate-100",
+                    borderColor: "border-slate-600"
+                }
+            ];
+
+            return (
+                <div className="p-6 max-w-4xl mx-auto">
+                    <h2 className="text-3xl font-bold text-center mb-8 text-slate-800">1. Los 3 Enemigos Espirituales</h2>
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {enemies.map((enemy) => (
+                            <div 
+                                key={enemy.id}
+                                onClick={() => setActiveEnemy(activeEnemy === enemy.id ? null : enemy.id)}
+                                className={`cursor-pointer rounded-xl p-6 border-2 transition-all duration-300 transform hover:-translate-y-2 shadow-lg ${enemy.color} ${enemy.borderColor} ${activeEnemy === enemy.id ? 'ring-4 ring-offset-2 ring-yellow-400' : ''}`}
+                            >
+                                <div className="flex flex-col items-center text-center">
+                                    <div className="mb-4 p-3 bg-white bg-opacity-30 rounded-full">
+                                        {enemy.icon}
+                                    </div>
+                                    <h3 className="text-xl font-bold mb-2">{enemy.title}</h3>
+                                    <span className="text-xs font-bold uppercase tracking-wider opacity-75">{enemy.verseRef}</span>
+                                    
+                                    <div className={`mt-4 overflow-hidden transition-all duration-500 ${activeEnemy === enemy.id ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                        <p className="italic text-sm leading-relaxed border-t border-current pt-4 mt-2">
+                                            "{enemy.verseText}"
+                                        </p>
+                                    </div>
+                                    {activeEnemy !== enemy.id && <p className="text-xs mt-4 opacity-60">(Clic para ver versículo)</p>}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- COMPONENTE 2: QUÉ PRODUCEN (CONSECUENCIAS) ---
+        const ConsequencesSection = () => {
+            const data = [
+                {
+                    category: "El Mundo",
+                    items: [
+                        { ref: "2 Corintios 7:10", text: "Tristeza del mundo", result: "Produce Muerte" },
+                        { ref: "Santiago 4:4", text: "Amistad con el mundo", result: "Enemistad contra Dios" },
+                        { ref: "1 Juan 2:15", text: "Amar al mundo", result: "El amor del Padre no está en él" }
+                    ],
+                    color: "bg-blue-50 border-blue-200"
+                },
+                {
+                    category: "La Carne",
+                    items: [
+                        { ref: "Gálatas 4:13", text: "Debilidad física", result: "Enfermedad / Prueba corporal" },
+                        { ref: "Romanos 8:6,8", text: "Ocuparse de la carne", result: "Muerte y desagrado a Dios" },
+                        { ref: "Gálatas 6:8", text: "Sembrar para la carne", result: "Corrupción" }
+                    ],
+                    color: "bg-red-50 border-red-200"
+                },
+                {
+                    category: "El Diablo",
+                    items: [
+                        { ref: "2 Timoteo 2:26", text: "Lazo del diablo", result: "Cautivos a voluntad de él" },
+                        { ref: "1 Pedro 5:8", text: "Adversario", result: "Devorar / Destruir" },
+                        { ref: "1 Juan 3:8", text: "Practicar el pecado", result: "Es del diablo" }
+                    ],
+                    color: "bg-slate-100 border-slate-300"
+                }
+            ];
+
+            return (
+                <div className="p-6 max-w-5xl mx-auto mt-8">
+                    <h2 className="text-3xl font-bold text-center mb-8 text-slate-800">2. ¿Qué producen estos enemigos?</h2>
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {data.map((group, idx) => (
+                            <div key={idx} className={`rounded-xl border shadow-sm overflow-hidden ${group.color}`}>
+                                <div className="p-3 bg-white/50 font-bold text-center border-b border-inherit uppercase tracking-widest text-sm">
+                                    {group.category}
+                                </div>
+                                <div className="p-4 space-y-4">
+                                    {group.items.map((item, i) => (
+                                        <div key={i} className="bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                            <span className="text-xs font-bold text-slate-400 block mb-1">{item.ref}</span>
+                                            <div className="text-sm font-medium text-slate-600">{item.text}</div>
+                                            <div className="mt-2 text-sm font-bold text-red-600 flex items-center gap-2">
+                                                <span className="text-lg">➔</span> {item.result}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- COMPONENTE 3: MENSAJE 1 JN 1:9 (PERDÓN) ---
+        const ForgivenessSection = () => {
+            const [cleaned, setCleaned] = useState(false);
+
+            return (
+                <div className="p-6 max-w-3xl mx-auto mt-8 mb-12">
+                    <h2 className="text-3xl font-bold text-center mb-4 text-slate-800">3. La Solución: Confesión</h2>
+                    
+                    <div className="relative bg-white rounded-3xl shadow-xl overflow-hidden min-h-[400px] flex flex-col items-center justify-center p-8 text-center border border-slate-100">
+                        {/* Background Effect */}
+                        <div className={`absolute inset-0 bg-blue-50 transition-opacity duration-1000 ${cleaned ? 'opacity-100' : 'opacity-0'}`}></div>
+                        
+                        <div className="relative z-10">
+                            <h3 className="text-2xl font-bold text-blue-900 mb-6 font-serif">1 Juan 1:9</h3>
+                            
+                            <div 
+                                className="cursor-pointer group relative inline-block mb-8 select-none"
+                                onClick={() => setCleaned(true)}
+                            >
+                                {/* The "Stain" - Clickable */}
+                                <div className={`stain relative bg-slate-800 text-white rounded-full w-48 h-48 flex items-center justify-center shadow-2xl ${cleaned ? 'cleaned' : ''}`}>
+                                    <div className="text-center p-4">
+                                        <Skull size={48} className="mx-auto mb-2 text-slate-400" />
+                                        <span className="font-bold text-lg">PECADO</span>
+                                        <p className="text-xs mt-2 text-slate-400">(Toca para confesar)</p>
+                                    </div>
+                                </div>
+
+                                {/* The Result - Hidden initially */}
+                                <div className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-1000 delay-300 ${cleaned ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
+                                    <div className="bg-white rounded-full p-4 shadow-xl border-4 border-blue-100">
+                                        <Droplets size={64} className="text-blue-500" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p className={`text-xl leading-relaxed max-w-lg mx-auto transition-colors duration-500 ${cleaned ? 'text-slate-800' : 'text-slate-400 blur-[2px]'}`}>
+                                "Si confesamos nuestros pecados, él es fiel y justo para <strong className="text-blue-600">perdonar</strong> nuestros pecados, y <strong className="text-blue-600">limpiarnos</strong> de toda maldad."
+                            </p>
+                            
+                            {cleaned && (
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); setCleaned(false); }}
+                                    className="mt-8 text-sm text-slate-400 hover:text-slate-600 underline"
+                                >
+                                    Reiniciar
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- COMPONENTE ORIGINAL: ARMADURA DE DIOS (Integrado) ---
+        const ArmorOfGod = () => {
+            const [equipped, setEquipped] = useState([]);
+            const [selectedPiece, setSelectedPiece] = useState(null);
+
+            const armorPieces = [
+                { id: 'belt', name: '1. Cinturón de la Verdad', verse: 'Efesios 6:14', text: '"Estad, pues, firmes, ceñidos vuestros lomos con la verdad"', description: 'La verdad de Dios es la base que sostiene todo. Nos mantiene íntegros y evita que caigamos en mentiras.', icon: <div className="w-6 h-6 border-2 border-current rounded-full" />, color: 'text-yellow-600', fillColor: '#CA8A04' },
+                { id: 'breastplate', name: '2. Coraza de Justicia', verse: 'Efesios 6:14', text: '"...y vestidos con la coraza de justicia"', description: 'Protege nuestro corazón (emociones y voluntad). La justicia de Cristo nos cubre y nos hace aceptos ante Dios.', icon: <Heart size={24} />, color: 'text-red-600', fillColor: '#DC2626' },
+                { id: 'shoes', name: '3. Calzado del Evangelio', verse: 'Efesios 6:15', text: '"...y calzados los pies con el apresto del evangelio de la paz"', description: 'Disposición para proclamar la paz de Dios. Nos da estabilidad y firmeza para caminar en terrenos difíciles.', icon: <Footprints size={24} />, color: 'text-orange-700', fillColor: '#C2410C' },
+                { id: 'shield', name: '4. Escudo de la Fe', verse: 'Efesios 6:16', text: '"Sobre todo, tomad el escudo de la fe, con que podáis apagar todos los dardos de fuego del maligno"', description: 'La confianza absoluta en Dios que detiene las dudas, el miedo y las tentaciones que el enemigo lanza.', icon: <Shield size={24} />, color: 'text-blue-700', fillColor: '#1D4ED8' },
+                { id: 'helmet', name: '5. Casco de la Salvación', verse: 'Efesios 6:17', text: '"Y tomad el yelmo de la salvación..."', description: 'Protege nuestra mente. La seguridad de nuestra salvación nos guarda de pensamientos negativos y dudas.', icon: <HardHat size={24} />, color: 'text-gray-600', fillColor: '#4B5563' },
+                { id: 'sword', name: '6. Espada del Espíritu', verse: 'Efesios 6:17', text: '"...y la espada del Espíritu, que es la palabra de Dios."', description: 'La única arma ofensiva. Usamos la Palabra de Dios para contraatacar las mentiras y avanzar.', icon: <Sword size={24} />, color: 'text-slate-800', fillColor: '#1E293B' }
+            ];
+
+            const togglePiece = (pieceId) => {
+                if (equipped.includes(pieceId)) {
+                    setEquipped(equipped.filter(id => id !== pieceId));
+                    if (selectedPiece?.id === pieceId) setSelectedPiece(null);
+                } else {
+                    setEquipped([...equipped, pieceId]);
+                    setSelectedPiece(armorPieces.find(p => p.id === pieceId));
+                }
+            };
+            const selectPieceInfo = (piece) => {
+                setSelectedPiece(piece);
+                if (!equipped.includes(piece.id)) setEquipped([...equipped, piece.id]);
+            };
+
+            return (
+                <div className="flex flex-col lg:flex-row gap-8 bg-white p-6 rounded-2xl shadow-lg border border-slate-100">
+                    <div className="w-full lg:w-1/2 flex justify-center items-center bg-slate-50 rounded-2xl shadow-inner p-8 relative overflow-hidden min-h-[500px]">
+                        <svg viewBox="0 0 400 600" className="h-[500px] w-auto relative z-10 drop-shadow-xl transition-all duration-500">
+                            <defs>
+                                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                                    <feGaussianBlur stdDeviation="5" result="blur" />
+                                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                </filter>
+                                <linearGradient id="metalGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stopColor="#4B5563" />
+                                    <stop offset="50%" stopColor="#9CA3AF" />
+                                    <stop offset="100%" stopColor="#4B5563" />
+                                </linearGradient>
+                            </defs>
+                            <g id="base-body" className="text-slate-300">
+                                <circle cx="200" cy="80" r="35" fill="currentColor" />
+                                <rect x="185" y="110" width="30" height="20" fill="currentColor" />
+                                <path d="M160,130 Q200,130 240,130 L230,280 Q200,290 170,280 Z" fill="currentColor" />
+                                <path d="M160,135 Q130,200 120,250" stroke="currentColor" strokeWidth="25" strokeLinecap="round" />
+                                <path d="M240,135 Q270,200 280,250" stroke="currentColor" strokeWidth="25" strokeLinecap="round" />
+                                <path d="M175,280 L170,480" stroke="currentColor" strokeWidth="28" strokeLinecap="round" />
+                                <path d="M225,280 L230,480" stroke="currentColor" strokeWidth="28" strokeLinecap="round" />
+                            </g>
+                            <g className={`transition-all duration-700 ${equipped.includes('shoes') ? 'opacity-100' : 'opacity-0 translate-y-4'}`} onClick={() => selectPieceInfo(armorPieces.find(p => p.id === 'shoes'))} style={{ cursor: 'pointer' }}>
+                                <path d="M155,440 L155,480 L185,480 Q190,460 185,440 Z" fill="#8B4513" />
+                                <path d="M215,440 L215,480 L245,480 Q250,460 245,440 Z" fill="#8B4513" />
+                            </g>
+                            <g className={`transition-all duration-700 ${equipped.includes('belt') ? 'opacity-100' : 'opacity-0 scale-95'}`} onClick={() => selectPieceInfo(armorPieces.find(p => p.id === 'belt'))} style={{ cursor: 'pointer' }}>
+                                <rect x="165" y="260" width="70" height="25" fill="#854d0e" />
+                                <rect x="190" y="260" width="20" height="25" fill="#FBBF24" stroke="#B45309" strokeWidth="2" />
+                            </g>
+                            <g className={`transition-all duration-700 ${equipped.includes('breastplate') ? 'opacity-100' : 'opacity-0 -translate-y-4'}`} onClick={() => selectPieceInfo(armorPieces.find(p => p.id === 'breastplate'))} style={{ cursor: 'pointer' }}>
+                                <path d="M155,135 Q200,125 245,135 L240,265 Q200,285 160,265 Z" fill="url(#metalGradient)" stroke="#9CA3AF" />
+                                <rect x="190" y="160" width="20" height="60" fill="#B91C1C" opacity="0.8" rx="5" />
+                            </g>
+                            <g className={`transition-all duration-700 ${equipped.includes('shield') ? 'opacity-100' : 'opacity-0 translate-x-10'}`} onClick={() => selectPieceInfo(armorPieces.find(p => p.id === 'shield'))} style={{ cursor: 'pointer' }}>
+                                <path d="M280,180 L340,180 L340,300 Q310,330 280,300 Z" fill="#1D4ED8" stroke="#1E3A8A" strokeWidth="3" />
+                                <path d="M300,210 h20 M310,200 v40" stroke="white" strokeWidth="8" />
+                            </g>
+                            <g className={`transition-all duration-700 ${equipped.includes('sword') ? 'opacity-100' : 'opacity-0 -translate-x-10 -rotate-45'}`} onClick={() => selectPieceInfo(armorPieces.find(p => p.id === 'sword'))} style={{ cursor: 'pointer' }}>
+                                <line x1="120" y1="100" x2="120" y2="250" stroke="#CBD5E1" strokeWidth="4" />
+                                <rect x="105" y="250" width="30" height="6" fill="#B45309" />
+                                <circle cx="120" cy="280" r="5" fill="#B45309" />
+                            </g>
+                            <g className={`transition-all duration-700 ${equipped.includes('helmet') ? 'opacity-100' : 'opacity-0 -translate-y-10'}`} onClick={() => selectPieceInfo(armorPieces.find(p => p.id === 'helmet'))} style={{ cursor: 'pointer' }}>
+                                <path d="M170,45 Q200,20 230,45 L225,55 Q200,35 175,55 Z" fill="#DC2626" />
+                                <path d="M170,50 Q200,30 230,50 L230,90 L220,100 L180,100 L170,90 Z" fill="url(#metalGradient)" />
+                            </g>
+                        </svg>
+                        {equipped.length === 0 && <div className="absolute bottom-10 animate-bounce text-slate-400 font-medium">Toca para equipar</div>}
+                    </div>
+
+                    <div className="w-full lg:w-1/2 flex flex-col gap-6">
+                        <div className="bg-white rounded-2xl shadow-sm p-6 min-h-[200px] border-l-8 transition-colors duration-300 flex flex-col justify-center" style={{ borderColor: selectedPiece ? selectedPiece.fillColor : '#E2E8F0' }}>
+                            {selectedPiece ? (
+                                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                    <h2 className={`text-2xl font-bold ${selectedPiece.color} mb-1`}>{selectedPiece.name}</h2>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">{selectedPiece.verse}</p>
+                                    <p className="text-lg italic text-slate-700 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100">{selectedPiece.text}</p>
+                                    <p className="text-slate-600">{selectedPiece.description}</p>
+                                </div>
+                            ) : (
+                                <div className="text-center text-slate-400"><p className="text-lg">Selecciona una pieza.</p></div>
+                            )}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {armorPieces.map((piece) => {
+                                const isEquipped = equipped.includes(piece.id);
+                                return (
+                                    <button key={piece.id} onClick={() => togglePiece(piece.id)} className={`p-3 rounded-lg border flex items-center justify-between transition-all ${isEquipped ? 'bg-blue-50 border-blue-500 text-blue-900' : 'bg-white border-slate-200 hover:border-blue-300'}`}>
+                                        <span className="font-semibold text-sm">{piece.name}</span>
+                                        {isEquipped && <CheckCircle2 size={16} className="text-blue-500" />}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        <div className="flex gap-2">
+                             <button onClick={() => {setEquipped(armorPieces.map(p=>p.id)); setSelectedPiece(null);}} className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm font-medium">Equipar Todo</button>
+                             <button onClick={() => {setEquipped([]); setSelectedPiece(null);}} className="flex-1 bg-slate-600 hover:bg-slate-700 text-white py-2 rounded-lg text-sm font-medium">Reiniciar</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- COMPONENTE PRINCIPAL (TABS) ---
+        const MainApp = () => {
+            const [activeTab, setActiveTab] = useState('enemies');
+
+            return (
+                <div className="min-h-screen bg-slate-50 flex flex-col font-sans pb-20">
+                    <header className="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-6 shadow-lg sticky top-0 z-50">
+                        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
+                            <div>
+                                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Guerra Espiritual</h1>
+                                <p className="text-slate-400 text-sm mt-1">Conoce a tu enemigo, tu solución y tu defensa.</p>
+                            </div>
+                            
+                            <div className="mt-4 md:mt-0 flex gap-3 items-center">
+                                <button 
+                                    onClick={() => window.location.href = 'index.html'}
+                                    className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm text-sm font-medium"
+                                >
+                                    <Home size={18} /> Inicio
+                                </button>
+                                <div className="flex bg-slate-700/50 p-1 rounded-xl">
+                                    <button 
+                                        onClick={() => setActiveTab('enemies')} 
+                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'enemies' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-300 hover:text-white'}`}
+                                    >
+                                        1. Enemigos
+                                    </button>
+                                    <button 
+                                        onClick={() => setActiveTab('forgiveness')} 
+                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'forgiveness' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-300 hover:text-white'}`}
+                                    >
+                                        2. Perdón
+                                    </button>
+                                    <button 
+                                        onClick={() => setActiveTab('armor')} 
+                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'armor' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-300 hover:text-white'}`}
+                                    >
+                                        3. Armadura
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="flex-grow w-full max-w-6xl mx-auto p-4">
+                        {activeTab === 'enemies' && (
+                            <div className="fade-in space-y-8">
+                                <EnemiesSection />
+                                <ConsequencesSection />
+                                <div className="text-center mt-12">
+                                    <button 
+                                        onClick={() => setActiveTab('forgiveness')}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold shadow-lg transform hover:scale-105 transition-all flex items-center gap-2 mx-auto"
+                                    >
+                                        Ver la Solución <Sword size={20} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'forgiveness' && (
+                            <div className="fade-in space-y-8">
+                                <ForgivenessSection />
+                                <div className="text-center mt-8">
+                                    <p className="text-slate-500 mb-4">Una vez limpios, necesitamos protegernos...</p>
+                                    <button 
+                                        onClick={() => setActiveTab('armor')}
+                                        className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold shadow-lg transform hover:scale-105 transition-all flex items-center gap-2 mx-auto"
+                                    >
+                                        Ponerse la Armadura <Shield size={20} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'armor' && (
+                            <div className="fade-in">
+                                <h2 className="text-3xl font-bold text-center mb-8 text-slate-800">4. La Armadura de Dios</h2>
+                                <ArmorOfGod />
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<MainApp />);
+    </script>
+</body>
+</html>

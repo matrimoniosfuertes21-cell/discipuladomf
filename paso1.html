@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paso 1: Mi Salvación</title>
+    
+    <!-- Librerías necesarias (Tailwind, React, Babel) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Animaciones personalizadas */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .float-anim { animation: float 3s ease-in-out infinite; }
+        .flip-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flip-card:hover .flip-card-inner, .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- ICONOS SVG ---
+        const DeadIcon = () => (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-12 h-12 text-slate-500"><path d="M9 3h6v4h-6zM4 9h16v6h-16zM6 19h12v2h-12z"/><path d="M9 15v4M15 15v4"/></svg>
+        );
+        const HeartPulse = () => (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-12 h-12 text-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M12 13v-3"/><path d="M12 9h.01"/></svg>
+        );
+        const Gift = () => (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-20 h-20 text-yellow-400"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
+        );
+        const BrokenChain = () => (
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-12 h-12 text-orange-500"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        );
+        const Tombstone = () => (
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-10 h-10 mx-auto mb-2 text-slate-400"><path d="M19 21H5a2 2 0 0 1-2-2V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v12a2 2 0 0 1-2 2Z"/><path d="M12 7v5"/><path d="M9 10h6"/></svg>
+        );
+        const InfinityIcon = () => (
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-10 h-10 mx-auto mb-2 text-purple-400"><path d="M12 12c-2-2.67-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.33 6-4Zm0 0c2 2.67 4 4 6 4a4 4 0 1 0 0-8c-2 0-4 1.33-6 4Z"/></svg>
+        );
+        const BodyIcon = () => (
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-10 h-10 mx-auto mb-2 text-emerald-400"><circle cx="12" cy="5" r="1"/><path d="m9 20 3-6 3 6"/><path d="m6 8 6 2 6-2"/><path d="M12 10v4"/></svg>
+        );
+        const ArrowRight = () => (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        );
+        const ArrowLeft = () => (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        );
+        const Sun = () => (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-12 h-12 text-yellow-300"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        );
+
+        // --- COMPONENTE PRINCIPAL ---
+        const SalvationApp = () => {
+            const [step, setStep] = useState(1);
+            const totalSteps = 4;
+
+            const nextStep = () => setStep(s => Math.min(s + 1, totalSteps));
+            const prevStep = () => setStep(s => Math.max(s - 1, 1));
+
+            return (
+                <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-slate-900 font-sans">
+                    
+                    {/* Barra de Progreso */}
+                    <div className="w-full max-w-4xl mb-8 flex items-center justify-between">
+                        <div className="text-xl font-bold text-white tracking-widest">MI SALVACIÓN</div>
+                        <div className="flex gap-2">
+                            {[1, 2, 3, 4].map(num => (
+                                <div key={num} className={`w-3 h-3 rounded-full transition-colors duration-300 ${step === num ? 'bg-yellow-400' : 'bg-slate-700'}`}></div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Contenedor Principal */}
+                    <div className="w-full max-w-4xl bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-700 relative min-h-[600px] flex flex-col">
+                        
+                        <div className="flex-grow p-8 md:p-12 relative">
+                            
+                            {/* PASO 1: SITUACIÓN SIN DIOS */}
+                            {step === 1 && (
+                                <div className="animate-in fade-in slide-in-from-right duration-500 h-full flex flex-col justify-center text-center">
+                                    <div className="mb-6 flex justify-center"><BrokenChain /></div>
+                                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">1. Nuestra Situación Sin Dios</h2>
+                                    
+                                    <div className="bg-slate-900/50 p-6 rounded-xl border border-red-900/30 mb-8">
+                                        <p className="text-xl text-slate-300 italic mb-4">"Y él os dio vida a vosotros, cuando estabais muertos en vuestros delitos y pecados..."</p>
+                                        <p className="text-sm text-red-400 font-bold uppercase tracking-wider">Efesios 2:1-3</p>
+                                    </div>
+
+                                    <div className="grid md:grid-cols-2 gap-6 text-left">
+                                        <div className="bg-slate-700 p-4 rounded-lg">
+                                            <h3 className="text-red-300 font-bold mb-2">Estado Anterior:</h3>
+                                            <ul className="list-disc list-inside text-slate-300 space-y-2">
+                                                <li>Muertos en delitos.</li>
+                                                <li>Siguiendo la corriente de este mundo.</li>
+                                                <li>Viviendo en los deseos de la carne.</li>
+                                            </ul>
+                                        </div>
+                                        <div className="bg-slate-700 p-4 rounded-lg flex items-center justify-center">
+                                            <p className="text-slate-300">
+                                                Sin Dios, el ser humano está espiritualmente desconectado de la fuente de la vida.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* PASO 2: LOS 3 TIPOS DE MUERTE */}
+                            {step === 2 && (
+                                <div className="animate-in fade-in slide-in-from-right duration-500 h-full flex flex-col justify-center">
+                                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center">2. Los 3 Tipos de Muerte</h2>
+                                    <p className="text-center text-slate-400 mb-8">Haz clic en las tarjetas para descubrir su significado.</p>
+                                    
+                                    <div className="grid md:grid-cols-3 gap-6 h-64">
+                                        
+                                        {/* Carta 1: Muerte Espiritual */}
+                                        <FlipCard title="Muerte Espiritual" color="text-indigo-400" icon={<DeadIcon />}>
+                                            <div className="text-center">
+                                                <p className="text-sm mb-4">Es la separación del hombre de Dios a causa del pecado.</p>
+                                                <p className="text-xs italic text-indigo-300">"Estabais muertos en vuestros delitos y pecados..."</p>
+                                                <p className="text-xs font-bold mt-2">Efesios 2:1</p>
+                                            </div>
+                                        </FlipCard>
+
+                                        {/* Carta 2: Muerte Física */}
+                                        <FlipCard title="Muerte Física" color="text-emerald-400" icon={<BodyIcon />}>
+                                            <div className="text-center">
+                                                <p className="text-sm mb-4">Separación del alma y el cuerpo. El fin de la vida biológica.</p>
+                                                <p className="text-xs italic text-emerald-300">"Y de la manera que está establecido para los hombres que mueran una sola vez..."</p>
+                                                <p className="text-xs font-bold mt-2">Hebreos 9:27</p>
+                                            </div>
+                                        </FlipCard>
+
+                                        {/* Carta 3: Muerte Eterna */}
+                                        <FlipCard title="Muerte Eterna" color="text-purple-400" icon={<InfinityIcon />}>
+                                            <div className="text-center">
+                                                <p className="text-sm mb-4">Separación definitiva y eterna de la presencia de Dios.</p>
+                                                <p className="text-xs italic text-purple-300">"Esta es la muerte segunda: el lago de fuego."</p>
+                                                <p className="text-xs font-bold mt-2">Apocalipsis 20:14</p>
+                                            </div>
+                                        </FlipCard>
+
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* PASO 3: LA GRACIA */}
+                            {step === 3 && (
+                                <div className="animate-in fade-in slide-in-from-right duration-500 h-full flex flex-col justify-center items-center text-center">
+                                    <div className="float-anim mb-6"><Gift /></div>
+                                    <h2 className="text-4xl md:text-5xl font-bold text-yellow-400 mb-4">3. Salvos por Gracia</h2>
+                                    
+                                    <div className="max-w-2xl bg-gradient-to-br from-yellow-900/40 to-slate-800 p-8 rounded-2xl border border-yellow-500/30 shadow-[0_0_30px_rgba(234,179,8,0.2)]">
+                                        <p className="text-2xl text-white font-serif italic leading-relaxed mb-6">
+                                            "Porque por gracia sois salvos por medio de la fe; y esto no de vosotros, pues es don de Dios; no por obras, para que nadie se gloríe."
+                                        </p>
+                                        <div className="text-yellow-400 font-bold tracking-widest text-lg border-t border-yellow-800 pt-4 inline-block">
+                                            EFESIOS 2:8-9
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-8 grid grid-cols-2 gap-8 max-w-lg w-full">
+                                        <div className="text-right border-r border-slate-600 pr-4">
+                                            <h4 className="text-slate-400 font-bold uppercase text-sm">¿Qué es Gracia?</h4>
+                                            <p className="text-white">Un regalo no merecido.</p>
+                                        </div>
+                                        <div className="text-left pl-4">
+                                            <h4 className="text-slate-400 font-bold uppercase text-sm">¿Por qué no obras?</h4>
+                                            <p className="text-white">Para que toda la gloria sea de Dios.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* PASO 4: LA VIDA CON DIOS */}
+                            {step === 4 && (
+                                <div className="animate-in fade-in slide-in-from-right duration-500 h-full flex flex-col justify-center">
+                                    <div className="flex items-center justify-center gap-3 mb-6">
+                                        <Sun />
+                                        <h2 className="text-3xl md:text-4xl font-bold text-white">4. La Vida con Dios</h2>
+                                    </div>
+                                    
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        
+                                        <VerseCard cite="Juan 1:12" title="Identidad">
+                                            "Mas a todos los que le recibieron, a los que creen en su nombre, les dio potestad de ser hechos hijos de Dios."
+                                        </VerseCard>
+
+                                        <VerseCard cite="Juan 5:24" title="Seguridad">
+                                            "El que oye mi palabra, y cree al que me envió, tiene vida eterna; y no vendrá a condenación..."
+                                        </VerseCard>
+
+                                        <VerseCard cite="2 Corintios 5:17" title="Transformación">
+                                            "De modo que si alguno está en Cristo, nueva criatura es; las cosas viejas pasaron; he aquí todas son hechas nuevas."
+                                        </VerseCard>
+
+                                        <VerseCard cite="Efesios 2:10" title="Propósito">
+                                            "Porque somos hechura suya, creados en Cristo Jesús para buenas obras..."
+                                        </VerseCard>
+
+                                    </div>
+                                </div>
+                            )}
+
+                        </div>
+
+                        {/* Botones de Navegación */}
+                        <div className="bg-slate-900 p-6 flex justify-between border-t border-slate-700">
+                            <button 
+                                onClick={prevStep}
+                                disabled={step === 1}
+                                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${step === 1 ? 'opacity-0 cursor-default' : 'bg-slate-700 hover:bg-slate-600 text-white'}`}
+                            >
+                                <ArrowLeft /> Anterior
+                            </button>
+
+                            <button 
+                                onClick={() => step === totalSteps ? window.location.href = 'index.html' : nextStep()}
+                                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${step === totalSteps ? 'bg-green-600 hover:bg-green-500 text-white cursor-pointer shadow-lg' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg hover:shadow-blue-500/20'}`}
+                            >
+                                {step === totalSteps ? '¡Completado! (Ir a Inicio)' : 'Siguiente'} {step !== totalSteps && <ArrowRight />}
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <p className="mt-8 text-slate-500 text-sm">Diseñado para estudio bíblico interactivo.</p>
+                </div>
+            );
+        };
+
+        // --- SUBCOMPONENTES ---
+        
+        // Tarjeta Giratoria para las muertes
+        const FlipCard = ({ title, icon, color, children }) => {
+            const [isFlipped, setIsFlipped] = useState(false);
+            
+            return (
+                <div 
+                    className="flip-card w-full h-full min-h-[200px] cursor-pointer group perspective-1000"
+                    onClick={() => setIsFlipped(!isFlipped)}
+                >
+                    <div className={`flip-card-inner relative w-full h-full transition-transform duration-700 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`} style={{transform: isFlipped ? 'rotateY(180deg)' : ''}}>
+                        
+                        {/* Frente */}
+                        <div className="flip-card-front absolute inset-0 bg-slate-700 rounded-xl border border-slate-600 flex flex-col items-center justify-center p-4 backface-hidden shadow-lg hover:border-slate-500 transition-colors">
+                            <div className={color}>{icon}</div>
+                            <h3 className={`text-xl font-bold mt-4 ${color}`}>{title}</h3>
+                            <p className="text-xs text-slate-400 mt-2">Clic para ver detalle</p>
+                        </div>
+                        
+                        {/* Reverso */}
+                        <div className="flip-card-back absolute inset-0 bg-slate-800 rounded-xl border border-slate-600 flex flex-col items-center justify-center p-4 backface-hidden rotate-y-180 shadow-inner" style={{transform: 'rotateY(180deg)'}}>
+                            {children}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Tarjeta simple para versículos
+        const VerseCard = ({ cite, title, children }) => (
+            <div className="bg-slate-700/50 p-4 rounded-xl border border-slate-600 hover:bg-slate-700 transition-colors">
+                <div className="flex justify-between items-start mb-2">
+                    <span className="text-blue-400 font-bold text-sm uppercase">{cite}</span>
+                    <span className="text-slate-400 text-xs bg-slate-800 px-2 py-1 rounded-full">{title}</span>
+                </div>
+                <p className="text-slate-200 text-sm leading-relaxed italic">
+                    {children}
+                </p>
+            </div>
+        );
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<SalvationApp />);
+    </script>
+</body>
+</html>
