@@ -134,15 +134,15 @@
                             {/* PASO 2: LOS 3 TIPOS DE MUERTE */}
                             {step === 2 && (
                                 <div className="animate-in fade-in slide-in-from-right duration-500 h-full flex flex-col justify-center">
-                                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center">2. Los 3 Tipos de Muerte</h2>
-                                    <p className="text-center text-slate-400 mb-8">Haz clic en las tarjetas para descubrir su significado.</p>
+                                    <h2 className="text-2xl md:text-4xl font-bold text-white mb-6 md:mb-8 text-center">2. Los 3 Tipos de Muerte</h2>
+                                    <p className="text-center text-slate-400 mb-6 md:mb-8 text-sm md:text-base">Haz clic en las tarjetas para descubrir su significado.</p>
                                     
-                                    <div className="grid md:grid-cols-3 gap-6 h-64">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 auto-rows-max">
                                         
                                         {/* Carta 1: Muerte Espiritual */}
                                         <FlipCard title="Muerte Espiritual" color="text-indigo-400" icon={<DeadIcon />}>
                                             <div className="text-center">
-                                                <p className="text-sm mb-4">Es la separación del hombre de Dios a causa del pecado.</p>
+                                                <p className="text-xs md:text-sm mb-4">Es la separación del hombre de Dios a causa del pecado.</p>
                                                 <p className="text-xs italic text-indigo-300">"Estabais muertos en vuestros delitos y pecados..."</p>
                                                 <p className="text-xs font-bold mt-2">Efesios 2:1</p>
                                             </div>
@@ -151,7 +151,7 @@
                                         {/* Carta 2: Muerte Física */}
                                         <FlipCard title="Muerte Física" color="text-emerald-400" icon={<BodyIcon />}>
                                             <div className="text-center">
-                                                <p className="text-sm mb-4">Separación del alma y el cuerpo. El fin de la vida biológica.</p>
+                                                <p className="text-xs md:text-sm mb-4">Separación del alma y el cuerpo. El fin de la vida biológica.</p>
                                                 <p className="text-xs italic text-emerald-300">"Y de la manera que está establecido para los hombres que mueran una sola vez..."</p>
                                                 <p className="text-xs font-bold mt-2">Hebreos 9:27</p>
                                             </div>
@@ -160,7 +160,7 @@
                                         {/* Carta 3: Muerte Eterna */}
                                         <FlipCard title="Muerte Eterna" color="text-purple-400" icon={<InfinityIcon />}>
                                             <div className="text-center">
-                                                <p className="text-sm mb-4">Separación definitiva y eterna de la presencia de Dios.</p>
+                                                <p className="text-xs md:text-sm mb-4">Separación definitiva y eterna de la presencia de Dios.</p>
                                                 <p className="text-xs italic text-purple-300">"Esta es la muerte segunda: el lago de fuego."</p>
                                                 <p className="text-xs font-bold mt-2">Apocalipsis 20:14</p>
                                             </div>
