@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafío Bíblico - Versión Final</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e67e22;
+            --bg: #f4f4f4;
+            --success: #27ae60;
+            --danger: #c0392b;
+            --combo: #8e44ad;
+            --combo-mega: #d35400; /* Color especial para el triple combo */
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 { color: var(--primary); margin-bottom: 0.5rem; }
+        .subtitle { color: #7f8c8d; margin-bottom: 2rem; }
+        
+        input[type="text"] {
+            padding: 10px 15px;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            width: 70%;
+            margin-bottom: 1rem;
+        }
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: scale(1.05); }
+
+        .game-panel { display: none; margin-top: 20px; }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .timer-box { color: var(--accent); }
+        .score-box { color: var(--success); }
+        
+        .current-target {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            padding: 15px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            border-left: 5px solid var(--accent);
+        }
+        .target-book { font-weight: 800; color: var(--primary); font-size: 2rem; }
+
+        #feedback {
+            margin-top: 15px;
+            min-height: 1.5rem;
+            font-style: italic;
+            color: #555;
+        }
+        .combo-text { color: var(--combo); font-weight: bold; }
+        .mega-combo-text { color: var(--combo-mega); font-weight: 900; font-size: 1.2em; }
+
+        .book-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .book-badge {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #eee;
+            color: #bbb;
+        }
+        .book-badge.completed { background: var(--success); color: white; }
+        .book-badge.combo-hit { background: var(--combo); color: white; }
+        .book-badge.mega-hit { background: var(--combo-mega); color: white; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📚 Desafío Bíblico</h1>
+    <p class="subtitle">¡Incluye combo triple para las cartas de Juan!</p>
+
+    <div id="setup-screen">
+        <input type="text" id="playerName" placeholder="Ingresa tu nombre" />
+        <br>
+        <button class="btn" onclick="startGame()">🎤 Iniciar Juego</button>
+        <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">Requiere Google Chrome o Edge.</p>
+    </div>
+
+    <div id="game-panel" class="game-panel">
+        <div class="stats">
+            <span class="timer-box">⏱️ <span id="timeDisplay">60</span>s</span>
+            <span class="score-box">⭐ Puntos: <span id="scoreDisplay">0</span></span>
+        </div>
+
+        <div class="current-target">
+            <span class="target-label">Siguiente:</span><br>
+            <span id="targetBookDisplay" class="target-book">Génesis</span>
+        </div>
+
+        <div id="feedback">Di el nombre del libro...</div>
+
+        <div class="book-list" id="bookListDisplay"></div>
+    </div>
+</div>
+
+<div id="resultModal" class="modal">
+    <div class="modal-content">
+        <h2 id="modalTitle">¡Juego Terminado!</h2>
+        <p id="modalMessage"></p>
+        <h1 id="finalScore" style="font-size: 3rem; color: var(--primary);">0</h1>
+        <button class="btn" onclick="resetGame()">Intentarlo otra vez</button>
+    </div>
+</div>
+
+<script>
+    const bibleBooks = [
+        "génesis", "éxodo", "levítico", "números", "deuteronomio", 
+        "josué", "jueces", "rut", "primera y segunda de samuel", 
+        "primera y segunda de reyes", "primera y segunda de crónicas", 
+        "esdras", "nehemías", "ester", "job", "salmos", "proverbios", 
+        "eclesiastés", "cantares", "isaías", "jeremías", "lamentaciones", 
+        "ezequiel", "daniel", "oseas", "joel", "amós", "abdías", "jonás", 
+        "miqueas", "nahúm", "habacuc", "sofonías", "hageo", "zacarías", "malaquías",
+        "mateo", "marcos", "lucas", "juan", "hechos", "romanos", 
+        "primera y segunda de corintios", "gálatas", "efesios", 
+        "filipenses", "colosenses", "primera y segunda de tesalonicenses", 
+        "primera y segunda de timoteo", "tito", "filemón", 
+        "hebreos", "santiago", "primera y segunda de pedro", 
+        "primera, segunda y tercera de juan", "judas", "apocalipsis"
+    ];
+
+    // CONFIGURACIÓN DE COMBOS AVANZADA
+    // phrase: lo que debe decir el usuario
+    // count: cuántos libros salta
+    const specialCombos = {
+        "primera de samuel": { phrase: "primera y segunda de samuel", count: 2 },
+        "primera de reyes": { phrase: "primera y segunda de reyes", count: 2 },
+        "primera de crónicas": { phrase: "primera y segunda de crónicas", count: 2 },
+        "primera de corintios": { phrase: "primera y segunda de corintios", count: 2 },
+        "primera de tesalonicenses": { phrase: "primera y segunda de tesalonicenses", count: 2 },
+        "primera de timoteo": { phrase: "primera y segunda de timoteo", count: 2 },
+        "primera de pedro": { phrase: "primera y segunda de pedro", count: 2 },
+        // EL NUEVO COMBO TRIPLE PARA JUAN:
+        "primera de juan": { phrase: "primera segunda y tercera de juan", count: 3 }
+    };
+
+    const numMap = { "1": "primera de", "2": "segunda de", "3": "tercera de", "i ": "primera de ", "ii ": "segunda de ", "iii ": "tercera de " };
+
+    let currentIndex = 0;
+    let score = 0;
+    let timeLeft = 60;
+    let timerInterval;
+    let recognition;
+    let isPlaying = false;
+    let name = "";
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'es-PE';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onresult = (event) => {
+            if (!isPlaying) return;
+            const results = event.results;
+            const transcript = results[results.length - 1][0].transcript.toLowerCase().trim();
+            
+            document.getElementById('feedback').innerText = `... ${transcript} ...`;
+            document.getElementById('feedback').className = ""; 
+            
+            checkAnswer(transcript);
+        };
+        recognition.onend = () => { if (isPlaying) recognition.start(); };
+    } else {
+        alert("Navegador no compatible. Usa Chrome.");
+    }
+
+    // Normalización: quita acentos y PUNTUACIÓN (comas, puntos)
+    function normalizeText(text) {
+        let normalized = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        // Reemplazar números romanos/arábigos
+        Object.keys(numMap).forEach(key => {
+            if(normalized.startsWith(key)) normalized = normalized.replace(key, numMap[key]);
+        });
+        // Eliminar comas y puntos para facilitar el "primera, segunda y tercera"
+        normalized = normalized.replace(/[.,]/g, "");
+        return normalized;
+    }
+
+    function startGame() {
+        name = document.getElementById('playerName').value || "Jugador";
+        currentIndex = 0; score = 0; timeLeft = 60; isPlaying = true;
+        
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('game-panel').style.display = 'block';
+        document.getElementById('resultModal').style.display = 'none';
+        
+        renderBookList();
+        updateUI();
+        startTimer();
+        try { recognition.start(); } catch(e) {}
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timeDisplay').innerText = timeLeft;
+            if (timeLeft <= 0) endGame(false, "¡Tiempo agotado!");
+        }, 1000);
+    }
+
+    function checkAnswer(spokenRaw) {
+        const currentBook = bibleBooks[currentIndex];
+        const spoken = normalizeText(spokenRaw);
+        const target = normalizeText(currentBook);
+
+        // --- LÓGICA DE COMBOS (DOBLES Y TRIPLES) ---
+        if (specialCombos[currentBook]) {
+            const comboData = specialCombos[currentBook];
+            const comboPhrase = normalizeText(comboData.phrase);
+            
+            // Verificamos si dijo la frase del combo
+            if (spoken.includes(comboPhrase)) {
+                const points = comboData.count;
+                score += points;
+                
+                // Marcar todos los libros del combo
+                for(let i = 0; i < points; i++) {
+                    markBookCompleted(currentIndex + i, "combo", points);
+                }
+                
+                currentIndex += points;
+                
+                if (points === 3) showFeedback("¡MEGA COMBO! +3 Puntos", "mega");
+                else showFeedback("¡Combo doble! +2 Puntos", "combo");
+
+                if (currentIndex >= bibleBooks.length) endGame(true);
+                else updateUI();
+                return;
+            }
+        }
+
+        // --- LÓGICA INDIVIDUAL ---
+        if (spoken.includes(target)) {
+            score++;
+            markBookCompleted(currentIndex, "normal");
+            currentIndex++;
+            showFeedback("¡Correcto!");
+            
+            if (currentIndex >= bibleBooks.length) endGame(true);
+            else updateUI();
+        } 
+        else {
+            // Verificar error (si se saltó libros)
+            const futureBooks = bibleBooks.slice(currentIndex + 1);
+            const saidFutureBook = futureBooks.some(b => spoken.includes(normalizeText(b)));
+            if (saidFutureBook) {
+                endGame(false, `¡Error! Saltaste "${currentBook}" y dijiste otro libro.`);
+            }
+        }
+    }
+
+    function showFeedback(msg, type) {
+        const el = document.getElementById('feedback');
+        el.innerText = msg;
+        if (type === "mega") el.className = "mega-combo-text";
+        else if (type === "combo") el.className = "combo-text";
+        else el.className = "";
+    }
+
+    function updateUI() {
+        document.getElementById('scoreDisplay').innerText = score;
+        document.getElementById('targetBookDisplay').innerText = bibleBooks[currentIndex] || "¡Fin!";
+    }
+
+    function renderBookList() {
+        const list = document.getElementById('bookListDisplay');
+        list.innerHTML = bibleBooks.map((book, i) => 
+            `<span id="book-${i}" class="book-badge">${book}</span>`
+        ).join('');
+    }
+
+    function markBookCompleted(index, type, comboSize) {
+        const badge = document.getElementById(`book-${index}`);
+        if(badge) {
+            badge.classList.add('completed');
+            if (type === "combo" && comboSize === 3) badge.classList.add('mega-hit');
+            else if (type === "combo") badge.classList.add('combo-hit');
+            badge.scrollIntoView({behavior: "smooth", block: "nearest"});
+        }
+    }
+
+    function endGame(isWin, reason = "") {
+        isPlaying = false;
+        clearInterval(timerInterval);
+        recognition.stop();
+
+        let finalScore = score;
+        let title = isWin ? "¡FELICIDADES!" : "Juego Terminado";
+        let msg = isWin 
+            ? `¡Increíble, ${name}! Completaste todo.<br>Puntos: ${score} + Bono tiempo: ${timeLeft}` 
+            : `${reason}<br>Buen intento, ${name}.`;
+
+        if (isWin) finalScore += timeLeft;
+
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalMessage').innerHTML = msg;
+        document.getElementById('finalScore').innerText = finalScore;
+        document.getElementById('resultModal').style.display = 'flex';
+    }
+
+    function resetGame() {
+        document.getElementById('resultModal').style.display = 'none';
+        document.getElementById('setup-screen').style.display = 'block';
+        document.getElementById('game-panel').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>

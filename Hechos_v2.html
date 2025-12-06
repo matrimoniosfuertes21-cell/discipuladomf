@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Respondiendo - Hechos de los Apóstoles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Nunito:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #bbdefb 100%);
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        .title-font {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Animaciones Personalizadas */
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            80% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .animate-pop {
+            animation: popIn 0.5s ease-out forwards;
+        }
+
+        .animate-slide {
+            animation: slideUp 0.5s ease-out forwards;
+        }
+
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .btn-option {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-option:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-option:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        /* Barra de tiempo */
+        .timer-container {
+            width: 100%;
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 1rem;
+            display: none;
+            /* Oculto inicialmente */
+        }
+
+        .timer-bar {
+            height: 100%;
+            background-color: #f59e0b;
+            /* Ambar */
+            width: 100%;
+            transition: width 0.1s linear, background-color 0.3s;
+        }
+
+        .correct-answer {
+            background-color: #4ade80 !important;
+            color: #064e3b !important;
+            border-color: #22c55e !important;
+        }
+
+        .wrong-answer {
+            background-color: #f87171 !important;
+            color: #7f1d1d !important;
+            border-color: #ef4444 !important;
+        }
+
+        /* Ocultar secciones por defecto */
+        .hidden-section {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center text-slate-800 selection:bg-yellow-200">
+
+    <div id="app"
+        class="w-full max-w-2xl bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden min-h-[600px] relative border border-white/50 m-4">
+
+        <div id="start-screen" class="p-8 flex flex-col items-center justify-center h-full text-center animate-pop">
+            <div class="mb-6 text-6xl animate-float">🕊️</div>
+            <h1 class="text-4xl md:text-5xl font-bold text-blue-600 mb-2">Hechos de los Apóstoles</h1>
+            <p class="text-lg text-slate-500 mb-8">Desafío Bíblico Interactivo</p>
+
+            <div class="w-full max-w-sm space-y-4">
+                <div class="relative">
+                    <input type="text" id="player-name" placeholder="Ingresa tu nombre..."
+                        class="w-full px-6 py-4 rounded-xl border-2 border-blue-100 focus:border-blue-500 focus:outline-none text-lg bg-white/50 transition-colors text-center font-bold text-blue-900 placeholder-blue-300">
+                </div>
+                <button onclick="startGame()"
+                    class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-1 transition-all text-xl">
+                    ¡Comenzar Aventura!
+                </button>
+            </div>
+        </div>
+
+        <div id="transition-screen"
+            class="hidden-section absolute inset-0 bg-gradient-to-br from-indigo-600 to-blue-500 z-50 flex flex-col items-center justify-center text-white p-8 text-center">
+            <h2 class="text-2xl font-light opacity-90 mb-2">Nivel <span id="trans-level-num">1</span></h2>
+            <h1 id="trans-chapter-title" class="text-4xl md:text-5xl font-bold mb-6 leading-tight animate-pop">Título
+                del Capítulo</h1>
+            <div class="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+            <p class="mt-4 text-white/80">Preparando preguntas...</p>
+        </div>
+
+        <div id="game-screen" class="hidden-section p-6 h-full flex flex-col">
+            <div class="flex justify-between items-center mb-6 bg-blue-50 p-4 rounded-2xl border border-blue-100">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">❤️</span>
+                    <span id="lives-display" class="font-bold text-xl text-red-500">3</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">Capítulo</span>
+                    <span id="chapter-display" class="font-bold text-blue-600 text-lg">1</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">⭐</span>
+                    <span id="score-display" class="font-bold text-xl text-yellow-600">0</span>
+                </div>
+            </div>
+
+            <div class="flex-grow flex flex-col justify-center">
+                <div class="mb-8">
+                    <span
+                        class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold mb-3 tracking-wide">PREGUNTA
+                        <span id="q-num">1</span></span>
+                    <h2 id="question-text"
+                        class="text-2xl md:text-3xl font-bold text-slate-800 leading-snug animate-slide">
+                        ¿Pregunta cargando?
+                    </h2>
+                </div>
+
+                <div id="options-container" class="space-y-3">
+                </div>
+
+                <div id="timer-wrapper" class="timer-container mt-6 opacity-0 transition-opacity duration-300">
+                    <div id="timer-bar" class="timer-bar"></div>
+                </div>
+                <p id="timer-text" class="text-center text-sm text-slate-400 mt-2 h-5"></p>
+            </div>
+        </div>
+
+        <div id="end-screen"
+            class="hidden-section p-8 flex flex-col items-center justify-center h-full text-center relative overflow-hidden">
+            <div
+                class="absolute top-0 left-0 w-full h-full pointer-events-none opacity-10 text-9xl flex flex-wrap justify-center overflow-hidden">
+                ✨ 🎉 🏆 🎉 ✨
+            </div>
+
+            <div id="end-icon" class="text-8xl mb-6 animate-pop">🏆</div>
+
+            <h1 id="end-title" class="text-4xl font-bold text-slate-800 mb-2">¡Felicidades!</h1>
+            <p id="end-message" class="text-xl text-slate-600 mb-8">Has completado el juego</p>
+
+            <div
+                class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100 w-full max-w-sm mb-8 transform rotate-1">
+                <h3 class="text-lg text-slate-400 font-semibold uppercase tracking-wider mb-2">Tarjeta de Jugador</h3>
+                <div class="border-b-2 border-slate-100 mb-4"></div>
+                <h2 id="end-player-name" class="text-3xl font-bold text-blue-600 mb-1">Nombre</h2>
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="bg-blue-50 p-3 rounded-lg">
+                        <span class="block text-xs text-blue-400 font-bold">PUNTOS</span>
+                        <span id="end-score" class="text-2xl font-bold text-blue-700">0</span>
+                    </div>
+                    <div class="bg-yellow-50 p-3 rounded-lg">
+                        <span class="block text-xs text-yellow-500 font-bold">NIVEL</span>
+                        <span id="end-level" class="text-2xl font-bold text-yellow-700">1</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="resetGame()"
+                class="bg-slate-800 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-slate-700 transform hover:scale-105 transition-all">
+                🔄 Jugar de nuevo
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURACIÓN
+        // ==========================================
+
+        const QUESTIONS_PER_LEVEL_CONFIG = 3;
+        const TIME_LIMIT = 10;
+        const MAX_LIVES = 3;
+
+        // ==========================================
+        // BANCO DE PREGUNTAS (HECHOS DE LOS APÓSTOLES)
+        // ==========================================
+
+        const actsData = [
+            {
+                chapter: 1,
+                title: "La Promesa del Espíritu",
+                questions: [
+                    { q: "¿A quién dirigió Lucas su primer tratado (el Evangelio) y este libro?", options: ["A Teófilo", "A Pedro", "A Pablo"], correct: 0 },
+                    { q: "¿Cuántos días se apareció Jesús a los apóstoles después de su pasión?", options: ["3 días", "40 días", "50 días"], correct: 1 },
+                    { q: "¿Qué promesa les dio Jesús antes de ascender?", options: ["Serían ricos", "Serían bautizados con el Espíritu Santo", "Gobernarían Roma"], correct: 1 },
+                    { q: "¿Quién fue elegido para reemplazar a Judas?", options: ["José llamado Barsabás", "Matías", "Bernabé"], correct: 1 },
+                    { q: "¿Desde qué monte ascendió Jesús al cielo?", options: ["Monte Sinaí", "Monte de los Olivos", "Monte Tabor"], correct: 1 },
+                    { q: "¿Qué les mandó Jesús que hicieran en Jerusalén mientras esperaban?", options: ["Que predicaran en el templo", "Que esperaran la promesa del Padre", "Que se escondieran de los romanos"], correct: 1 },
+                    { q: "Según el texto, ¿con qué bautizó Juan?", options: ["Con fuego", "Con agua", "Con aceite"], correct: 1 },
+                    { q: "¿Qué preguntaron los discípulos a Jesús antes de su ascensión?", options: ["¿Cuándo volverás?", "¿Restaurarás el reino a Israel en este tiempo?", "¿Quién nos liderará?"], correct: 1 },
+                    { q: "¿Qué dijo Jesús que recibirían cuando viniera sobre ellos el Espíritu Santo?", options: ["Poder", "Riquezas", "Autoridad política"], correct: 0 },
+                    { q: "¿Hasta dónde les dijo Jesús que serían testigos?", options: ["Solo en Judea", "En Jerusalén y Samaria", "Hasta lo último de la tierra"], correct: 2 },
+                    { q: "¿Qué ocultó a Jesús de la vista de los discípulos mientras ascendía?", options: ["Una luz brillante", "Una nube", "Un carro de fuego"], correct: 1 },
+                    { q: "¿Quiénes se pusieron junto a los discípulos mientras miraban al cielo?", options: ["Moisés y Elías", "Dos varones con vestiduras blancas", "Un ángel con espada"], correct: 1 },
+                    { q: "¿Qué distancia se menciona que hay desde el Monte de los Olivos a Jerusalén?", options: ["Camino de un día de reposo", "Dos millas", "Tres días de camino"], correct: 0 },
+                    { q: "¿En qué lugar de Jerusalén se alojaban y reunían los discípulos?", options: ["En el atrio del templo", "En un aposento alto", "En la casa de Caifás"], correct: 1 },
+                    { q: "¿Quiénes perseveraban en oración junto con los apóstoles?", options: ["Solo los varones", "Las mujeres, María la madre de Jesús, y sus hermanos", "Los sacerdotes del templo"], correct: 1 },
+                    { q: "¿Aproximadamente cuántas personas estaban reunidas cuando Pedro se levantó a hablar?", options: ["Doce", "Setenta", "Ciento veinte"], correct: 2 },
+                    { q: "¿Cómo se llamó el campo comprado con el salario de la iniquidad de Judas?", options: ["Gólgota", "Acéldama", "Getsemaní"], correct: 1 },
+                    { q: "¿Qué significa el nombre 'Acéldama'?", options: ["Campo de Paz", "Campo de Sangre", "Campo de Alfarero"], correct: 1 },
+                    { q: "¿Qué requisito debía cumplir el candidato para reemplazar a Judas?", options: ["Ser de la tribu de Leví", "Haber estado con ellos desde el bautismo de Juan hasta la ascensión", "Ser sabio en las Escrituras"], correct: 1 },
+                    { q: "¿Qué hicieron los apóstoles para decidir entre José y Matías?", options: ["Votaron a mano alzada", "Eligeron al mayor", "Oraron y echaron suertes"], correct: 2 }
+                ]
+            },
+            {
+                chapter: 2,
+                title: "La Venida del Espíritu Santo",
+                questions: [
+                    { q: "¿Qué sonido se escuchó el día de Pentecostés?", options: ["Un trueno fuerte", "Una ráfaga de viento recio", "Música celestial"], correct: 1 },
+                    { q: "¿Qué se les apareció sobre sus cabezas?", options: ["Palomas blancas", "Lenguas como de fuego", "Halos de luz"], correct: 1 },
+                    { q: "¿Qué decían algunos burlándose de los apóstoles?", options: ["Están locos", "Están llenos de mosto (ebrios)", "Son magos"], correct: 1 },
+                    { q: "¿Cuántas personas se convirtieron tras el discurso de Pedro?", options: ["Como tres mil", "Quinientas", "Doce"], correct: 0 },
+                    { q: "¿Qué profeta citó Pedro en su discurso?", options: ["Isaías", "Joel", "Jeremías"], correct: 1 },
+                    // Preguntas adicionales para el Capítulo 2: La Venida del Espíritu Santo
+                    { q: "¿Qué hora del día dijo Pedro que era para demostrar que no estaban ebrios?", options: ["La hora sexta", "La hora tercera (9:00 AM)", "El mediodía"], correct: 1 },
+                    { q: "¿Por qué estaba confusa la multitud que se reunió?", options: ["Porque vieron fuego", "Porque cada uno les oía hablar en su propia lengua", "Porque hubo un terremoto"], correct: 1 },
+                    { q: "¿Quiénes se pusieron de pie junto a Pedro cuando alzó la voz?", options: ["Los otros once apóstoles", "María y las mujeres", "Los setenta discípulos"], correct: 0 },
+                    { q: "En la profecía de Joel citada por Pedro, ¿en qué se convertirá el sol antes del día del Señor?", options: ["En sangre", "En tinieblas", "En fuego"], correct: 1 },
+                    { q: "¿Sobre quiénes dijo Dios que derramaría su Espíritu en los postreros días?", options: ["Solo sobre los sacerdotes", "Sobre toda carne", "Solo sobre los profetas"], correct: 1 },
+                    { q: "Según Pedro, ¿qué patriarca murió, fue sepultado y su sepulcro estaba con ellos?", options: ["Abraham", "David", "Moisés"], correct: 1 },
+                    { q: "Según el Salmo citado por Pedro, ¿dónde está sentado el Señor?", options: ["A la diestra de Dios", "En el trono de David", "Sobre los querubines"], correct: 0 },
+                    { q: "¿Qué sintieron los oyentes al escuchar el discurso de Pedro?", options: ["Ira", "Miedo", "Se compungieron de corazón"], correct: 2 },
+                    { q: "¿Qué dos cosas les mandó Pedro que hicieran para perdón de los pecados?", options: ["Orar y ayunar", "Arrepentirse y bautizarse", "Ofrecer sacrificios"], correct: 1 },
+                    { q: "¿Para quién dijo Pedro que es la promesa del Espíritu Santo?", options: ["Solo para los judíos", "Para vosotros, vuestros hijos y los que están lejos", "Solo para los apóstoles"], correct: 1 },
+                    { q: "¿Con qué frase exhortaba Pedro a la gente para que se salvaran?", options: ["Sed salvos de esta perversa generación", "Huid de la ira venidera", "Buscad a Dios mientras pueda ser hallado"], correct: 0 },
+                    { q: "¿En qué cuatro cosas perseveraban los nuevos creyentes?", options: ["Ayuno, vigilia, lectura y canto", "Doctrina de los apóstoles, comunión, partimiento del pan y oraciones", "Predicación, sanidades, viajes y ofrendas"], correct: 1 },
+                    { q: "¿Qué hacían los creyentes con sus propiedades y bienes?", options: ["Las guardaban", "Las vendían y repartían según la necesidad de cada uno", "Las donaban al templo"], correct: 1 },
+                    { q: "¿Cómo describen las Escrituras el ánimo con el que comían juntos?", options: ["Con temor y temblor", "Con alegría y sencillez de corazón", "Con seriedad y silencio"], correct: 1 },
+                    { q: "¿Qué hacía el Señor cada día con la iglesia?", options: ["Les daba riquezas", "Añadía a los que habían de ser salvos", "Los protegía de los romanos"], correct: 1 }
+                ]
+            },
+            {
+                chapter: 3,
+                title: "El Cojo de la Hermosa",
+                questions: [
+                    { q: "¿Quiénes subían al templo a la hora de la oración?", options: ["Pedro y Juan", "Pablo y Bernabé", "Santiago y Juan"], correct: 0 },
+                    { q: "¿Qué pedía el hombre cojo en la puerta del templo?", options: ["Sanidad", "Comida", "Limosna"], correct: 2 },
+                    { q: "¿Qué le dijo Pedro al cojo?", options: ["No tengo plata ni oro", "Ten fe y anda", "Ven mañana"], correct: 0 },
+                    { q: "¿Cómo se llamaba la puerta del templo?", options: ["La Dorada", "La Hermosa", "La Oriental"], correct: 1 },
+                    { q: "¿A qué hora era la oración?", options: ["La hora novena", "La hora tercera", "Al mediodía"], correct: 0 },
+					// Preguntas adicionales para el Capítulo 3: El Cojo de la Hermosa
+{ q: "¿Qué hizo Pedro inmediatamente después de decirle al cojo que se levantara?", options: ["Lo roció con agua", "Le tomó por la mano derecha y le levantó", "Siguió caminando"], correct: 1 },
+{ q: "¿Qué sucedió físicamente con el hombre cojo al instante?", options: ["Le creció el cabello", "Se afirmaron sus pies y tobillos", "Su ropa se volvió blanca"], correct: 1 },
+{ q: "¿Qué tres cosas hacía el hombre mientras entraba con ellos en el templo?", options: ["Gritando, llorando y orando", "Andando, saltando y alabando a Dios", "Corriendo, cantando y bailando"], correct: 1 },
+{ q: "¿Cómo reaccionó el pueblo al ver al que había sido cojo caminando?", options: ["Se burlaron de él", "Se llenaron de asombro y espanto", "Lo expulsaron del templo"], correct: 1 },
+{ q: "¿A qué pórtico corrió todo el pueblo asombrado para ver a Pedro y Juan?", options: ["Al pórtico de Salomón", "Al pórtico Real", "Al atrio de los gentiles"], correct: 0 },
+{ q: "¿A quién dijo Pedro que el pueblo había negado delante de Pilato?", options: ["Al Santo y al Justo", "Al Rey de Israel", "Al Sumo Sacerdote"], correct: 0 },
+{ q: "¿A quién pidieron que se les soltase en lugar de a Jesús?", options: ["A un ladrón", "A un homicida", "A un blasfemo"], correct: 1 },
+{ q: "¿Cómo llamó Pedro a Jesús en el versículo 15, contrastando con la muerte?", options: ["El Hijo del Hombre", "El Autor de la vida", "El León de Judá"], correct: 1 },
+{ q: "¿Qué afirmó Pedro que había dado al hombre esta completa sanidad?", options: ["La medicina de Lucas", "La fe en el nombre de Jesús", "La piedad de los apóstoles"], correct: 1 },
+{ q: "¿Cómo dijo Pedro que habían actuado el pueblo y sus gobernantes al matar a Jesús?", options: ["Por ignorancia", "Por envidia", "Por estrategia política"], correct: 0 },
+{ q: "¿Qué debían hacer para que sus pecados fueran borrados?", options: ["Pagar el diezmo", "Arrepentirse y convertirse", "Hacer peregrinación"], correct: 1 },
+{ q: "¿Qué vendría de la presencia del Señor tras el arrepentimiento?", options: ["Tiempos de refrigerio", "Juicio inmediato", "Riquezas materiales"], correct: 0 },
+{ q: "¿Quién debe recibir a Jesús hasta los tiempos de la restauración de todas las cosas?", options: ["La iglesia", "El cielo", "El trono de David"], correct: 1 },
+{ q: "¿Qué profeta del Antiguo Testamento citó Pedro diciendo: 'El Señor vuestro Dios os levantará profeta...'?", options: ["Elías", "Isaías", "Moisés"], correct: 2 },
+{ q: "¿Cuál fue la promesa del pacto que Dios hizo con Abraham mencionada por Pedro?", options: ["Serás padre de muchas naciones", "En tu simiente serán benditas todas las familias de la tierra", "Te daré la tierra de Canaán"], correct: 1 }
+                ]
+            },
+            {
+                chapter: 4,
+                title: "Pedro y Juan ante el Concilio",
+                questions: [
+                    { q: "¿Quiénes se resentían porque enseñaban la resurrección?", options: ["Los Fariseos", "Los Saduceos", "Los Romanos"], correct: 1 },
+                    { q: "¿A cuántos llegó el número de varones que creyeron?", options: ["Aproximadamente cinco mil", "Dos mil", "Diez mil"], correct: 0 },
+                    { q: "¿Qué notaron los gobernantes sobre Pedro y Juan?", options: ["Que eran hombres sin letras y del vulgo", "Que eran muy ricos", "Que eran romanos"], correct: 0 },
+                    { q: "¿Qué nombre es el único dado a los hombres para salvación?", options: ["Moisés", "Jesús", "Abraham"], correct: 1 },
+                    { q: "¿Qué pasó cuando oraron después de ser liberados?", options: ["Llovió fuego", "El lugar tembló", "Todos callaron"], correct: 1 },
+					// Preguntas adicionales para el Capítulo 4: Pedro y Juan ante el Concilio
+{ q: "¿Quién era el sumo sacerdote mencionado durante la reunión del concilio?", options: ["Anás", "Gamaliel", "Nicodemo"], correct: 0 },
+{ q: "¿Qué pregunta específica hicieron los gobernantes a Pedro y Juan al ponerlos en medio?", options: ["¿Con qué potestad o en qué nombre habéis hecho esto?", "¿Por qué causáis alboroto en el templo?", "¿Quién os dio permiso para enseñar?"], correct: 0 },
+{ q: "Según Pedro, ¿qué hicieron los edificadores con la 'piedra' que ahora es cabeza del ángulo?", options: ["La adoraron", "La reprobaron", "La escondieron"], correct: 1 },
+{ q: "¿Qué reconocieron los gobernantes al ver el denuedo de Pedro y Juan?", options: ["Que eran galileos rebeldes", "Que habían estado con Jesús", "Que eran profetas antiguos"], correct: 1 },
+{ q: "¿Por qué no podían los gobernantes decir nada en contra de los apóstoles?", options: ["Porque tenían miedo a la multitud", "Porque veían al hombre que había sido sanado de pie con ellos", "Porque los apóstoles eran ciudadanos romanos"], correct: 1 },
+{ q: "¿Qué ordenaron los gobernantes a Pedro y Juan después de conferenciar?", options: ["Que pagaran una multa", "Que no hablasen ni enseñasen en el nombre de Jesús", "Que salieran de Jerusalén inmediatamente"], correct: 1 },
+{ q: "¿Cuál fue la respuesta de Pedro y Juan ante la prohibición de hablar?", options: ["Obedeceremos a las autoridades", "No podemos dejar de decir lo que hemos visto y oído", "Hablaremos solo en secreto"], correct: 1 },
+{ q: "¿Qué edad tenía el hombre en quien se había hecho el milagro de sanidad?", options: ["Más de cuarenta años", "Veinte años", "Casi cien años"], correct: 0 },
+{ q: "¿A quién citaron los creyentes en su oración diciendo: '¿Por qué se amotinan las gentes...'?", options: ["Al profeta Isaías", "A su padre David", "A Moisés"], correct: 1 },
+{ q: "¿Quiénes dijeron en su oración que se habían unido contra Jesús?", options: ["Solo los judíos", "Herodes, Poncio Pilato, los gentiles y el pueblo de Israel", "Los romanos y los griegos"], correct: 1 },
+{ q: "¿Qué pidieron al Señor en su oración para poder hablar su palabra?", options: ["Protección física", "Venganza contra los enemigos", "Denuedo (valor)"], correct: 2 },
+{ q: "¿Qué pedían que hiciera Dios para respaldar su predicación?", options: ["Que enviara fuego del cielo", "Que extendiera su mano para hacer sanidades, señales y prodigios", "Que destruyera a los gobernantes"], correct: 1 },
+{ q: "¿Cómo era el corazón y el alma de la multitud de los que habían creído?", options: ["Estaban divididos", "Eran de un corazón y un alma", "Tenían muchas dudas"], correct: 1 },
+{ q: "¿Quién era José, a quien los apóstoles pusieron por sobrenombre Bernabé?", options: ["Un levita, natural de Chipre", "Un fariseo de Tarso", "Un pescador de Galilea"], correct: 0 },
+{ q: "¿Qué significa el nombre Bernabé?", options: ["Hijo del Trueno", "Hijo de Consolación", "Hijo de Sabiduría"], correct: 1 }
+                ]
+            },
+            {
+                chapter: 5,
+                title: "Ananías y Safira",
+                questions: [
+                    { q: "¿Qué hicieron Ananías y Safira?", options: ["Blasfemaron", "Sustrajeron del precio de la heredad", "Negaron a Jesús"], correct: 1 },
+                    { q: "¿Qué le pasó a Ananías al oír las palabras de Pedro?", options: ["Se arrepintió", "Cayó y expiró", "Huyó corriendo"], correct: 1 },
+                    { q: "¿Quién liberó a los apóstoles de la cárcel pública?", options: ["Un ángel del Señor", "El carcelero", "Gamaliel"], correct: 0 },
+                    { q: "¿Qué consejo dio Gamaliel?", options: ["Matarlos a todos", "Dejarlos, por si es obra de Dios", "Encarcelarlos de por vida"], correct: 1 },
+                    { q: "¿Qué sombra sanaba a los enfermos?", options: ["La de Pedro", "La de Juan", "La de Pablo"], correct: 0 },
+					// Preguntas adicionales para el Capítulo 5: Ananías y Safira
+{ q: "¿Cuánto tiempo pasó aproximadamente entre la muerte de Ananías y la llegada de su esposa?", options: ["Un día entero", "Como tres horas", "Una semana"], correct: 1 },
+{ q: "¿Qué le preguntó Pedro a Safira cuando ella entró?", options: ["¿Dónde está tu marido?", "¿Vendisteis en tanto la heredad?", "¿Por qué lloras?"], correct: 1 },
+{ q: "¿Quién llenó el corazón de Ananías para mentir según Pedro?", options: ["Satanás", "El Sumo Sacerdote", "La codicia"], correct: 0 },
+{ q: "¿Qué sobrevino a toda la iglesia y a los que oyeron estas cosas?", options: ["Gran gozo", "Gran temor", "Dudas"], correct: 1 },
+{ q: "¿En qué lugar del templo se reunían los creyentes de común acuerdo?", options: ["En el atrio de los gentiles", "En el pórtico de Salomón", "En el Lugar Santo"], correct: 1 },
+{ q: "¿De dónde venía la multitud que traía enfermos y atormentados?", options: ["Solo de Jerusalén", "De las ciudades vecinas a Jerusalén", "De Roma"], correct: 1 },
+{ q: "¿Quiénes se llenaron de celos y echaron mano a los apóstoles?", options: ["El sumo sacerdote y la secta de los saduceos", "Los fariseos", "Los soldados romanos"], correct: 0 },
+{ q: "¿Qué mandó el ángel a los apóstoles que hicieran tras liberarlos?", options: ["Huid a Galilea", "Id, y puestos en pie en el templo, anunciad al pueblo todas las palabras de esta vida", "Escondeos en las casas"], correct: 1 },
+{ q: "¿Qué encontraron los alguaciles cuando fueron a la cárcel a buscar a los apóstoles?", options: ["La cárcel cerrada con toda seguridad, pero nadie adentro", "Las puertas rotas", "A los guardias dormidos"], correct: 0 },
+{ q: "¿Por qué trajeron los jefes de la guardia a los apóstoles sin violencia?", options: ["Porque respetaban a Pedro", "Porque temían ser apedreados por el pueblo", "Porque era día de reposo"], correct: 1 },
+{ q: "¿Cuál fue la respuesta clave de Pedro y los apóstoles ante el concilio?", options: ["No lo volveremos a hacer", "Es necesario obedecer a Dios antes que a los hombres", "Tenemos derechos romanos"], correct: 1 },
+{ q: "¿De qué eran testigos los apóstoles y el Espíritu Santo?", options: ["De la resurrección y exaltación de Jesús", "De la caída de Roma", "Del fin del mundo"], correct: 0 },
+{ q: "¿Quién era Gamaliel?", options: ["Un centurión romano", "Un fariseo, doctor de la ley, venerado por todo el pueblo", "Un sumo sacerdote saduceo"], correct: 1 },
+{ q: "¿A qué dos rebeldes mencionó Gamaliel como ejemplos de movimientos que fracasaron?", options: ["Teudas y Judas el galileo", "Barrabás y Dimas", "Caifás y Anás"], correct: 0 },
+{ q: "¿Cómo reaccionaron los apóstoles después de ser azotados y liberados?", options: ["Salieron llorando de miedo", "Salieron gozosos de haber sido tenidos por dignos de padecer afrenta por la Causa", "Planearon su venganza"], correct: 1 }
+                ]
+            },
+            {
+                chapter: 6,
+                title: "Elección de los Diáconos",
+                questions: [
+                    { q: "¿Cuántos varones de buen testimonio escogieron?", options: ["Siete", "Doce", "Tres"], correct: 0 },
+                    { q: "¿De qué grupo eran las viudas desatendidas?", options: ["Hebreos", "Griegos", "Romanos"], correct: 1 },
+                    { q: "¿Quién estaba lleno de gracia y poder?", options: ["Esteban", "Felipe", "Prócoro"], correct: 0 },
+                    { q: "¿Qué acusación falsa lanzaron contra Esteban?", options: ["Robar", "Blasfemar contra Moisés y Dios", "No pagar impuestos"], correct: 1 },
+                    { q: "¿Qué vieron en el rostro de Esteban?", options: ["Ira", "Miedo", "Rostro de ángel"], correct: 2 },
+					// Preguntas adicionales para el Capítulo 6: Elección de los Diáconos
+{ q: "¿Cuál era la queja específica de los griegos contra los hebreos?", options: ["Que no les dejaban hablar", "Que sus viudas eran desatendidas en la distribución diaria", "Que no tenían lugar en la sinagoga"], correct: 1 },
+{ q: "¿Qué dijeron los doce que no era justo que hicieran?", options: ["Dejar la palabra de Dios para servir a las mesas", "Trabajar con sus manos", "Pagar tributo al César"], correct: 0 },
+{ q: "¿A qué dos cosas dijeron los apóstoles que persistirían?", options: ["Al ayuno y la vigilia", "A la oración y al ministerio de la palabra", "A la recolección de ofrendas"], correct: 1 },
+{ q: "¿Qué requisitos debían tener los siete varones escogidos?", options: ["Ser ricos y de linaje noble", "Ser mayores de cincuenta años", "Buen testimonio, llenos del Espíritu Santo y de sabiduría"], correct: 2 },
+{ q: "¿Cuál de los siguientes NO fue uno de los siete elegidos?", options: ["Nicanor", "Bernabé", "Timón"], correct: 1 },
+{ q: "¿Quién es mencionado como un prosélito de Antioquía entre los siete?", options: ["Nicolás", "Parmenas", "Felipe"], correct: 0 },
+{ q: "¿Qué hicieron los apóstoles después de orar por los siete?", options: ["Les lavaron los pies", "Les impusieron las manos", "Les dieron nuevas túnicas"], correct: 1 },
+{ q: "¿Qué grupo religioso importante obedecía a la fe en gran número en Jerusalén?", options: ["Los saduceos", "Los escribas", "Los sacerdotes"], correct: 2 },
+{ q: "¿De qué sinagoga eran algunos de los que disputaban con Esteban?", options: ["De la sinagoga de los Libertos", "De la sinagoga de Nazaret", "De la sinagoga de Roma"], correct: 0 },
+{ q: "¿Por qué no podían resistir los opositores a Esteban?", options: ["Por su voz fuerte", "Por la sabiduría y el Espíritu con que hablaba", "Porque tenía guardias romanos"], correct: 1 },
+{ q: "¿A quiénes sobornaron para acusar a Esteban?", options: ["A unos hombres", "A los soldados", "A los sirvientes del templo"], correct: 0 },
+{ q: "¿Contra qué dos cosas acusaron a Esteban de hablar palabras blasfemas?", options: ["Contra el César y Herodes", "Contra Moisés y contra Dios", "Contra el sábado y la circuncisión"], correct: 1 },
+{ q: "¿A quiénes conmovieron los opositores para arrestar a Esteban?", options: ["Al pueblo, a los ancianos y a los escribas", "A los romanos", "A los samaritanos"], correct: 0 },
+{ q: "¿Qué afirmaron los testigos falsos que Jesús haría con 'este lugar' (el templo)?", options: ["Lo ampliaría", "Lo destruiría", "Lo purificaría"], correct: 1 },
+{ q: "¿Qué dijeron que Jesús cambiaría?", options: ["El idioma de adoración", "Las costumbres que dio Moisés", "El sumo sacerdocio"], correct: 1 }
+                ]
+            },
+            {
+                chapter: 7,
+                title: "Discurso y Muerte de Esteban",
+                questions: [
+                    { q: "¿A quién vio Esteban a la diestra de Dios?", options: ["A Elías", "Al Hijo del Hombre", "A Moisés"], correct: 1 },
+                    { q: "¿Cómo mataron a Esteban?", options: ["Crucificado", "Decapitado", "Apedreado"], correct: 2 },
+                    { q: "¿A los pies de qué joven pusieron sus ropas?", options: ["Saulo", "Pedro", "Timoteo"], correct: 0 },
+                    { q: "¿Qué dijo Esteban al morir?", options: ["Véngame Señor", "Señor, no les tomes en cuenta este pecado", "Tengo sed"], correct: 1 },
+                    { q: "¿Qué patriarca salió de su tierra sin saber a dónde iba?", options: ["Abraham", "Isaac", "Jacob"], correct: 0 },
+					// Preguntas adicionales para el Capítulo 7: Discurso y Muerte de Esteban
+{ q: "¿En qué lugar se apareció el Dios de la gloria a Abraham antes de que morase en Harán?", options: ["En Mesopotamia", "En Egipto", "En Canaán"], correct: 0 },
+{ q: "¿Cuánta tierra le dio Dios a Abraham como heredad en ese momento?", options: ["Toda la tierra de Canaán", "Ni siquiera para asentar un pie", "Diez ciudades"], correct: 1 },
+{ q: "¿Por cuánto tiempo dijo Dios que la descendencia de Abraham sería extranjera y maltratada?", options: ["400 años", "70 años", "40 años"], correct: 0 },
+{ q: "¿Qué pacto le dio Dios a Abraham?", options: ["El pacto de la ley", "El pacto de la circuncisión", "El pacto de la sal"], correct: 1 },
+{ q: "¿Por qué razón los patriarcas vendieron a José para Egipto?", options: ["Por dinero", "Por envidia", "Por orden de Jacob"], correct: 1 },
+{ q: "¿Cuántas personas componían la familia de Jacob que descendió a Egipto?", options: ["Setenta y cinco", "Ciento veinte", "Cuarenta"], correct: 0 },
+{ q: "¿En qué sepulcro fueron enterrados Jacob y nuestros padres?", options: ["En la cueva de Macpela", "En el sepulcro que Abraham compró en Siquem", "En las pirámides"], correct: 1 },
+{ q: "¿Qué edad tenía Moisés cuando decidió visitar a sus hermanos los hijos de Israel?", options: ["Veinte años", "Treinta años", "Cuarenta años"], correct: 2 },
+{ q: "¿Por qué huyó Moisés a la tierra de Madián?", options: ["Porque mató a un egipcio y fue descubierto", "Porque Faraón lo odiaba", "Porque quería ser pastor"], correct: 0 },
+{ q: "¿Dónde se le apareció un ángel a Moisés después de cuarenta años?", options: ["En el desierto del monte Sinaí", "En el monte Tabor", "En el río Jordán"], correct: 0 },
+{ q: "¿Qué le dijeron los israelitas a Aarón cuando Moisés estaba en el monte?", options: ["Danos agua", "Haznos dioses que vayan delante de nosotros", "Volvamos a Egipto"], correct: 1 },
+{ q: "¿Qué figuras adoró Israel en el desierto según la cita de los profetas?", options: ["El tabernáculo de Moloc y la estrella de Renfán", "A Baal y Asera", "A Dagón"], correct: 0 },
+{ q: "¿Quién halló gracia delante de Dios y pidió hallar tabernáculo para el Dios de Jacob?", options: ["Salomón", "David", "Josué"], correct: 1 },
+{ q: "¿Quién fue el que finalmente le edificó casa (templo) a Dios?", options: ["David", "Salomón", "Moisés"], correct: 1 },
+{ q: "¿Cómo llamó Esteban a sus oyentes al final de su discurso?", options: ["Hijos de profetas", "Duros de cerviz e incircuncisos de corazón", "Varones piadosos"], correct: 1 }
+                ]
+            },
+            {
+                chapter: 8,
+                title: "Saulo persigue a la iglesia",
+                questions: [
+                    { q: "¿A dónde fue Felipe a predicar?", options: ["Samaria", "Damasco", "Roma"], correct: 0 },
+                    { q: "¿Qué hombre practicaba magia en Samaria?", options: ["Simón", "Elimas", "Alejandro"], correct: 0 },
+                    { q: "¿Qué quería comprar Simón con dinero?", options: ["El perdón", "El don del Espíritu Santo", "Un puesto de apóstol"], correct: 1 },
+                    { q: "¿A quién evangelizó Felipe en el camino a Gaza?", options: ["Un centurión", "Un eunuco etíope", "Un fariseo"], correct: 1 },
+                    { q: "¿Qué leía el eunuco?", options: ["Salmos", "Isaías", "La Ley"], correct: 1 },
+					// Preguntas adicionales para el Capítulo 8: Saulo persigue a la iglesia
+{ q: "¿Quiénes permanecieron en Jerusalén cuando la iglesia fue esparcida por la persecución?", options: ["Todos los discípulos", "Solo los apóstoles", "Los diáconos"], correct: 1 },
+{ q: "¿Quiénes llevaron a Esteban a su sepultura e hicieron gran llanto?", options: ["Sus familiares", "Varones piadosos", "Los apóstoles"], correct: 1 },
+{ q: "¿Cómo perseguía Saulo a la iglesia?", options: ["Debatiendo en el templo", "Entrando casa por casa y arrastrando a hombres y mujeres a la cárcel", "Cobrando multas excesivas"], correct: 1 },
+{ q: "¿Qué hacían los creyentes que fueron esparcidos?", options: ["Se escondían en cuevas", "Iban por todas partes anunciando el evangelio", "Regresaron a sus antiguos trabajos en silencio"], correct: 1 },
+{ q: "¿Qué milagros específicos hacía Felipe en Samaria?", options: ["Convertía el agua en vino", "Echaba fuera espíritus inmundos y sanaba a paralíticos y cojos", "Hacía llover fuego"], correct: 1 },
+{ q: "¿Cómo llamaba la gente a Simón el mago antes de oír a Felipe?", options: ["El profeta de Samaria", "Este es el gran poder de Dios", "El rey de los judíos"], correct: 1 },
+{ q: "¿Qué creyeron los samaritanos para ser bautizados?", options: ["En el evangelio del reino de Dios y el nombre de Jesucristo", "En los milagros de Simón", "En la ley de Moisés"], correct: 0 },
+{ q: "¿Quiénes fueron enviados desde Jerusalén al oír que Samaria había recibido la palabra?", options: ["Bernabé y Saulo", "Pedro y Juan", "Santiago y Pedro"], correct: 1 },
+{ q: "¿Por qué oraron Pedro y Juan por los samaritanos?", options: ["Para que fueran sanados", "Para que recibiesen el Espíritu Santo", "Para que hablaran en lenguas"], correct: 1 },
+{ q: "¿Qué ofreció Simón a los apóstoles a cambio del poder de impartir el Espíritu Santo?", options: ["Su lealtad", "Dinero", "Sus libros de magia"], correct: 1 },
+{ q: "¿Qué dura respuesta le dio Pedro a Simón?", options: ["Tu dinero perezca contigo", "No eres digno de vivir", "Vete de aquí, Satanás"], correct: 0 },
+{ q: "¿En qué condición espiritual dijo Pedro que estaba Simón?", options: ["En hiel de amargura y prisión de maldad", "En oscuridad total", "En ignorancia suprema"], correct: 0 },
+{ q: "¿Quién le dio la instrucción a Felipe de ir al camino desierto de Gaza?", options: ["El Espíritu Santo", "Un ángel del Señor", "Pedro"], correct: 1 },
+{ q: "¿Qué pasaje específico de Isaías leía el eunuco?", options: ["Como oveja a la muerte fue llevado", "El Espíritu del Señor está sobre mí", "Un niño nos es nacido"], correct: 0 },
+{ q: "¿Qué sucedió con Felipe inmediatamente después de bautizar al eunuco?", options: ["Caminó de regreso a Jerusalén", "El Espíritu del Señor lo arrebató y apareció en Azoto", "Se quedó enseñando al eunuco por tres días"], correct: 1 }
+                ]
+            },
+            {
+                chapter: 9,
+                title: "Conversión de Saulo",
+                questions: [
+                    { q: "¿Hacia qué ciudad iba Saulo persiguiendo cristianos?", options: ["Jerusalén", "Antioquía", "Damasco"], correct: 2 },
+                    { q: "¿Qué le pasó a Saulo en el camino?", options: ["Se cayó del caballo", "Le rodeó una luz del cielo", "Se encontró con Pedro"], correct: 1 },
+                    { q: "¿Cuántos días estuvo Saulo sin ver?", options: ["Tres días", "Siete días", "Un día"], correct: 0 },
+                    { q: "¿Quién oró por Saulo para que recobrara la vista?", options: ["Bernabé", "Ananías", "Silas"], correct: 1 },
+                    { q: "¿A quién resucitó Pedro en Jope?", options: ["Eneas", "Tabita (Dorcas)", "Lidia"], correct: 1 },
+					// Preguntas adicionales para el Capítulo 9: Conversión de Saulo
+{ q: "¿Qué pidió Saulo al sumo sacerdote para llevar a cabo su persecución?", options: ["Dinero para el viaje", "Guardias romanos", "Cartas para las sinagogas"], correct: 2 },
+{ q: "¿Qué experimentaron los hombres que viajaban con Saulo?", options: ["Vieron a Jesús claramente", "Oyeron la voz, pero no vieron a nadie", "Quedaron ciegos también"], correct: 1 },
+{ q: "¿Cómo se llamaba la calle donde Ananías debía buscar a Saulo?", options: ["La calle Santa", "La calle Derecha", "La calle del Templo"], correct: 1 },
+{ q: "¿En casa de quién estaba Saulo en Damasco?", options: ["De Judas", "De Simón", "De Bernabé"], correct: 0 },
+{ q: "¿Cómo describió el Señor a Saulo ante Ananías?", options: ["Un enemigo peligroso", "Instrumento escogido para llevar mi nombre", "Un fariseo confundido"], correct: 1 },
+{ q: "¿Qué le cayó de los ojos a Saulo cuando Ananías le impuso las manos?", options: ["Lágrimas", "Como escamas", "Polvo"], correct: 1 },
+{ q: "¿Qué comenzó a hacer Saulo en las sinagogas enseguida?", options: ["Predicaba a Cristo, que él es el Hijo de Dios", "Pedía perdón públicamente", "Guardaba silencio"], correct: 0 },
+{ q: "¿Cómo escapó Saulo de los judíos que querían matarlo en Damasco?", options: ["Disfrazado de soldado", "Por una puerta secreta", "Le bajaron por el muro en una canasta"], correct: 2 },
+{ q: "¿Cómo reaccionaron los discípulos en Jerusalén al ver a Saulo?", options: ["Lo recibieron con gozo", "Tenían miedo de él y no creían que fuese discípulo", "Lo interrogaron"], correct: 1 },
+{ q: "¿Quién tomó a Saulo y lo llevó ante los apóstoles para validarlo?", options: ["Pedro", "Juan", "Bernabé"], correct: 2 },
+{ q: "¿Contra quiénes hablaba y disputaba Saulo en Jerusalén?", options: ["Los saduceos", "Los griegos (helenistas)", "Los romanos"], correct: 1 },
+{ q: "¿A quién encontró Pedro en Lida que estaba paralítico?", options: ["Eneas", "Cornelio", "Bartimeo"], correct: 0 },
+{ q: "¿Cuánto tiempo llevaba Eneas en cama?", options: ["Diez años", "Ocho años", "Cinco años"], correct: 1 },
+{ q: "¿Qué significa el nombre Tabita?", options: ["Princesa", "Dorcas (Gacela)", "Estrella"], correct: 1 },
+{ q: "¿Con quién se hospedó Pedro en Jope muchos días?", options: ["Con un fariseo", "Con Simón el curtidor", "Con el centurión"], correct: 1 }
+                ]
+            },
+            {
+                chapter: 10,
+                title: "Pedro y Cornelio",
+                questions: [
+                    { q: "¿De qué compañía era centurión Cornelio?", options: ["La Augusta", "La Italiana", "La Pretoriana"], correct: 1 },
+                    { q: "¿Qué vio Pedro en su visión?", options: ["Ángeles cantando", "Un lienzo con animales", "Fuego del cielo"], correct: 1 },
+                    { q: "¿Qué entendió Pedro con la visión?", options: ["Que no debe comer carne", "Que Dios no hace acepción de personas", "Que debe ir a Roma"], correct: 1 },
+                    { q: "¿Qué pasó mientras Pedro predicaba a los gentiles?", options: ["El Espíritu Santo cayó sobre ellos", "Hubo un terremoto", "Cornelio se durmió"], correct: 0 },
+                    { q: "¿Qué mandó Pedro después?", options: ["Que se fueran", "Que fueran bautizados", "Que pagaran diezmo"], correct: 1 },					
+					// Preguntas adicionales para el Capítulo 10: Pedro y Cornelio
+{ q: "¿En qué ciudad vivía Cornelio?", options: ["Jope", "Cesarea", "Jerusalén"], correct: 1 },
+{ q: "¿A qué hora del día vio Cornelio claramente al ángel?", options: ["A la hora sexta (mediodía)", "A la hora novena (3:00 PM)", "Al amanecer"], correct: 1 },
+{ q: "¿Cuál era el oficio de Simón, en cuya casa se hospedaba Pedro?", options: ["Carpintero", "Pescador", "Curtidor"], correct: 2 },
+{ q: "¿A qué hora subió Pedro a la azotea para orar?", options: ["A la hora sexta", "A la hora novena", "A la medianoche"], correct: 0 },
+{ q: "¿Qué estado físico tenía Pedro antes de caer en éxtasis?", options: ["Estaba enfermo", "Tenía gran hambre", "Estaba dormido"], correct: 1 },
+{ q: "¿Qué le respondió la voz a Pedro cuando dijo que nunca había comido cosa común?", options: ["Lo que Dios limpió, no lo llames tú común", "Tienes razón, Pedro", "Es una prueba de fe"], correct: 0 },
+{ q: "¿Cuántas veces se repitió la visión del lienzo bajando del cielo?", options: ["Siete veces", "Dos veces", "Tres veces"], correct: 2 },
+{ q: "¿Qué hizo Cornelio cuando Pedro entró en su casa?", options: ["Le dio la mano", "Se postró a sus pies y adoró", "Le ofreció dinero"], correct: 1 },
+{ q: "¿Qué le dijo Pedro a Cornelio al levantarlo del suelo?", options: ["No soy digno", "Levántate, pues yo mismo también soy hombre", "La paz sea contigo"], correct: 1 },
+{ q: "¿A quiénes había convocado Cornelio esperando la llegada de Pedro?", options: ["A los soldados romanos", "A sus parientes y amigos más íntimos", "A los sacerdotes judíos"], correct: 1 },
+{ q: "¿Qué dijo Pedro que era abominable (o ilegal) para un varón judío?", options: ["Entrar en casa de un gentil", "Juntarse o acercarse a un extranjero", "Comer carne de cerdo"], correct: 1 },
+{ q: "¿A quién mencionó Pedro como 'Señor de todos' en su discurso?", options: ["A Dios Padre", "A Jesucristo", "Al Espíritu Santo"], correct: 1 },
+{ q: "¿Por qué se maravillaron los fieles de la circuncisión que habían venido con Pedro?", options: ["Porque vieron ángeles", "Porque los gentiles hablaban hebreo", "Porque también sobre los gentiles se derramase el don del Espíritu Santo"], correct: 2 },
+{ q: "¿Cómo supieron los judíos que los gentiles habían recibido el Espíritu?", options: ["Porque los oían hablar en lenguas y magnificar a Dios", "Porque vieron fuego", "Porque sanaron enfermos"], correct: 0 },
+{ q: "¿Qué preguntó Pedro respecto al bautismo de los gentiles?", options: ["¿Están dispuestos a circuncidarse?", "¿Puede acaso alguno impedir el agua?", "¿Han ayunado lo suficiente?"], correct: 1 }
+                ]
+            }
+        ];
+
+        // Rellenar capítulos restantes
+        for (let i = 11; i <= 28; i++) {
+            actsData.push({
+                chapter: i,
+                title: `Capítulo ${i}: Misiones y Viajes`,
+                questions: [
+                    { q: `Pregunta de prueba del cap ${i} - A`, options: ["Opción Correcta", "Incorrecta 1", "Incorrecta 2"], correct: 0 },
+                    { q: `Pregunta de prueba del cap ${i} - B`, options: ["Incorrecta 1", "Opción Correcta", "Incorrecta 2"], correct: 1 },
+                    { q: `Pregunta de prueba del cap ${i} - C`, options: ["Incorrecta 1", "Incorrecta 2", "Opción Correcta"], correct: 2 },
+                    { q: `Pregunta de prueba del cap ${i} - D`, options: ["Opción Correcta", "Incorrecta 1", "Incorrecta 2"], correct: 0 },
+                    { q: `Pregunta de prueba del cap ${i} - E`, options: ["Incorrecta 1", "Opción Correcta", "Incorrecta 2"], correct: 1 }
+                ]
+            });
+        }
+
+        // ==========================================
+        // ESTADO DEL JUEGO
+        // ==========================================
+        let gameState = {
+            playerName: "",
+            score: 0,
+            lives: MAX_LIVES,
+            currentChapterIndex: 0,
+            chapterQuestions: [],
+            currentQuestionIndex: 0,
+            timerInterval: null,
+            canAnswer: false
+        };
+
+        const screens = {
+            start: document.getElementById('start-screen'),
+            transition: document.getElementById('transition-screen'),
+            game: document.getElementById('game-screen'),
+            end: document.getElementById('end-screen')
+        };
+
+        const ui = {
+            playerNameInput: document.getElementById('player-name'),
+            lives: document.getElementById('lives-display'),
+            score: document.getElementById('score-display'),
+            chapter: document.getElementById('chapter-display'),
+            transLevel: document.getElementById('trans-level-num'),
+            transTitle: document.getElementById('trans-chapter-title'),
+            qNum: document.getElementById('q-num'),
+            qText: document.getElementById('question-text'),
+            options: document.getElementById('options-container'),
+            timerBar: document.getElementById('timer-bar'),
+            timerWrapper: document.getElementById('timer-wrapper'),
+            timerText: document.getElementById('timer-text'),
+            endTitle: document.getElementById('end-title'),
+            endMsg: document.getElementById('end-message'),
+            endName: document.getElementById('end-player-name'),
+            endScore: document.getElementById('end-score'),
+            endLevel: document.getElementById('end-level'),
+            endIcon: document.getElementById('end-icon'),
+            app: document.getElementById('app')
+        };
+
+        // ==========================================
+        // LÓGICA
+        // ==========================================
+
+        function showScreen(screenName) {
+            Object.values(screens).forEach(s => s.classList.add('hidden-section'));
+            screens[screenName].classList.remove('hidden-section');
+        }
+
+        function startGame() {
+            const name = ui.playerNameInput.value.trim();
+            if (!name) {
+                ui.playerNameInput.classList.add('animate-shake');
+                ui.playerNameInput.classList.add('border-red-400');
+                setTimeout(() => {
+                    ui.playerNameInput.classList.remove('animate-shake');
+                    ui.playerNameInput.classList.remove('border-red-400');
+                }, 500);
+                return;
+            }
+
+            gameState.playerName = name;
+            gameState.score = 0;
+            gameState.lives = MAX_LIVES;
+            gameState.currentChapterIndex = 0;
+
+            updateHUD();
+            startChapterTransition();
+        }
+
+        function startChapterTransition() {
+            const currentData = actsData[gameState.currentChapterIndex];
+
+            ui.transLevel.innerText = currentData.chapter;
+            ui.transTitle.innerText = currentData.title;
+
+            showScreen('transition');
+
+            // 1. MEZCLA DE PREGUNTAS (Ya estaba, pero confirmamos que funciona)
+            const allQuestions = [...currentData.questions];
+            for (let i = allQuestions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
+            }
+
+            gameState.chapterQuestions = allQuestions.slice(0, QUESTIONS_PER_LEVEL_CONFIG);
+            gameState.currentQuestionIndex = 0;
+
+            setTimeout(() => {
+                showScreen('game');
+                loadQuestion();
+            }, 3000);
+        }
+
+        function loadQuestion() {
+            clearInterval(gameState.timerInterval);
+            ui.timerWrapper.style.opacity = "0";
+            ui.timerWrapper.style.display = "none";
+            ui.timerBar.style.width = "100%";
+            ui.timerBar.classList.remove('bg-red-500');
+            ui.timerBar.classList.add('bg-yellow-500');
+            ui.timerText.innerText = "";
+            gameState.canAnswer = false;
+
+            const qData = gameState.chapterQuestions[gameState.currentQuestionIndex];
+
+            ui.qNum.innerText = gameState.currentQuestionIndex + 1;
+            ui.qText.innerText = qData.q;
+            ui.qText.classList.remove('animate-slide');
+            void ui.qText.offsetWidth;
+            ui.qText.classList.add('animate-slide');
+
+            ui.options.innerHTML = '';
+
+            // 2. MEZCLA DE OPCIONES (NUEVO)
+            // Creamos un array de objetos para mantener el índice original
+            let optionsWithIndices = qData.options.map((opt, index) => {
+                return { text: opt, originalIndex: index };
+            });
+
+            // Algoritmo Fisher-Yates para mezclar las opciones
+            for (let i = optionsWithIndices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [optionsWithIndices[i], optionsWithIndices[j]] = [optionsWithIndices[j], optionsWithIndices[i]];
+            }
+
+            // Renderizamos las opciones mezcladas
+            optionsWithIndices.forEach((optObj, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'btn-option bg-white border-2 border-blue-100 p-4 rounded-xl text-lg font-medium text-slate-700 shadow-sm opacity-0 transform translate-y-4';
+                btn.innerText = optObj.text;
+
+                // Guardamos el índice original en el elemento para buscarlo luego si es necesario
+                btn.dataset.originalIndex = optObj.originalIndex;
+
+                // Pasamos el índice ORIGINAL a la función de verificación
+                btn.onclick = () => checkAnswer(optObj.originalIndex, btn);
+                ui.options.appendChild(btn);
+
+                setTimeout(() => {
+                    btn.style.transition = "all 0.3s ease-out";
+                    btn.style.opacity = "1";
+                    btn.style.transform = "translateY(0)";
+
+                    if (index === optionsWithIndices.length - 1) {
+                        setTimeout(startTimer, 500);
+                    }
+                }, index * 200); // Un poco más rápido para no esperar tanto
+            });
+        }
+
+        function startTimer() {
+            gameState.canAnswer = true;
+            ui.timerWrapper.style.display = "block";
+            setTimeout(() => ui.timerWrapper.style.opacity = "1", 50);
+
+            let timeLeft = TIME_LIMIT;
+            ui.timerText.innerText = `${timeLeft}s`;
+
+            ui.timerBar.style.transition = `width ${TIME_LIMIT}s linear`;
+            ui.timerBar.style.width = "0%";
+
+            gameState.timerInterval = setInterval(() => {
+                timeLeft--;
+                ui.timerText.innerText = timeLeft > 0 ? `${timeLeft}s` : "¡Tiempo!";
+
+                if (timeLeft <= 3) {
+                    ui.timerBar.classList.remove('bg-yellow-500');
+                    ui.timerBar.classList.add('bg-red-500');
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (!gameState.canAnswer) return;
+            gameState.canAnswer = false;
+            clearInterval(gameState.timerInterval);
+
+            const currentWidth = ui.timerBar.offsetWidth;
+            ui.timerBar.style.transition = "none";
+            ui.timerBar.style.width = `${currentWidth}px`;
+
+            const currentQ = gameState.chapterQuestions[gameState.currentQuestionIndex];
+
+            // selectedIndex es el índice ORIGINAL de la respuesta en el array de datos
+            const isCorrect = selectedIndex === currentQ.correct;
+
+            if (isCorrect) {
+                btnElement.classList.add('correct-answer');
+                gameState.score++;
+                ui.score.classList.add('animate-pop');
+                setTimeout(() => ui.score.classList.remove('animate-pop'), 500);
+            } else {
+                btnElement.classList.add('wrong-answer');
+
+                // Buscar visualmente cuál botón tiene la respuesta correcta
+                Array.from(ui.options.children).forEach(button => {
+                    if (parseInt(button.dataset.originalIndex) === currentQ.correct) {
+                        button.classList.add('correct-answer');
+                    }
+                });
+
+                gameState.lives--;
+                ui.app.classList.add('animate-shake');
+                setTimeout(() => ui.app.classList.remove('animate-shake'), 500);
+            }
+
+            updateHUD();
+
+            setTimeout(() => {
+                if (gameState.lives <= 0) {
+                    endGame(false);
+                } else {
+                    nextQuestion();
+                }
+            }, 2000);
+        }
+
+        function handleTimeOut() {
+            gameState.canAnswer = false;
+            gameState.lives--;
+            updateHUD();
+
+            const currentQ = gameState.chapterQuestions[gameState.currentQuestionIndex];
+
+            // Buscar y marcar la correcta
+            Array.from(ui.options.children).forEach(button => {
+                if (parseInt(button.dataset.originalIndex) === currentQ.correct) {
+                    button.classList.add('correct-answer');
+                    button.classList.add('animate-pop');
+                }
+            });
+
+            setTimeout(() => {
+                if (gameState.lives <= 0) {
+                    endGame(false);
+                } else {
+                    nextQuestion();
+                }
+            }, 2000);
+        }
+
+        function nextQuestion() {
+            gameState.currentQuestionIndex++;
+
+            if (gameState.currentQuestionIndex >= gameState.chapterQuestions.length) {
+                gameState.currentChapterIndex++;
+                if (gameState.currentChapterIndex >= actsData.length) {
+                    endGame(true);
+                } else {
+                    startChapterTransition();
+                }
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function updateHUD() {
+            ui.lives.innerText = gameState.lives;
+            ui.score.innerText = gameState.score;
+            ui.chapter.innerText = gameState.currentChapterIndex + 1;
+        }
+
+        function endGame(victory) {
+            showScreen('end');
+            ui.endName.innerText = gameState.playerName;
+            ui.endScore.innerText = gameState.score;
+            ui.endLevel.innerText = gameState.currentChapterIndex + (victory ? 0 : 1);
+
+            if (victory) {
+                ui.endTitle.innerText = "¡ASOMBROSO!";
+                ui.endTitle.className = "text-4xl font-bold text-yellow-600 mb-2";
+                ui.endMessage.innerText = "¡Has completado todo el libro de Hechos!";
+                ui.endIcon.innerText = "👑";
+            } else {
+                ui.endTitle.innerText = "¡Buen Intento!";
+                ui.endTitle.className = "text-4xl font-bold text-blue-600 mb-2";
+                ui.endIcon.innerText = "🛡️";
+
+                const msgs = [
+                    "¡No te rindas! La Palabra es vida.",
+                    "¡Casi lo logras! Vuelve a intentarlo.",
+                    "Sigue estudiando y llegarás lejos.",
+                    "¡Has llegado muy lejos, felicidades!"
+                ];
+                ui.endMsg.innerText = msgs[Math.floor(Math.random() * msgs.length)];
+            }
+        }
+
+        function resetGame() {
+            showScreen('start');
+            ui.playerNameInput.value = '';
+        }
+
+    </script>
+</body>
+
+</html>
